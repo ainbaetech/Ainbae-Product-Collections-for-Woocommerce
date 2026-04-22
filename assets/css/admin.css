@@ -1,37 +1,15 @@
 /**
  * Ainbae Product Collections for WooCommerce — Admin Styles
- *
- * Tweaks the Collections meta box to match WooCommerce's Category meta box
- * exactly in sizing, scroll behaviour and typography.
  */
 
-/* ── Meta box container ──────────────────────────────────────────────────── */
-#product_collectiondiv .ainbae-col-metabox {
-	margin: 0;
-}
+/* ── Meta box ────────────────────────────────────────────────────────────── */
+#product_collectiondiv .ainbae-col-metabox { margin: 0; }
 
-/* ── Tabs (All Collections / Most Used) ──────────────────────────────────── */
-#product_collectiondiv .category-tabs {
-	margin: 0 0 8px;
-	padding: 0;
-}
+#product_collectiondiv .category-tabs { margin: 0 0 8px; padding: 0; }
+#product_collectiondiv .category-tabs li { display: inline-block; }
+#product_collectiondiv .category-tabs li a { padding: 4px 8px; text-decoration: none; font-size: 12px; }
+#product_collectiondiv .category-tabs li.tabs a { font-weight: 600; color: #1d2327; }
 
-#product_collectiondiv .category-tabs li {
-	display: inline-block;
-}
-
-#product_collectiondiv .category-tabs li a {
-	padding: 4px 8px;
-	text-decoration: none;
-	font-size: 12px;
-}
-
-#product_collectiondiv .category-tabs li.tabs a {
-	font-weight: 600;
-	color: #1d2327;
-}
-
-/* ── Scrollable checklist panels ─────────────────────────────────────────── */
 #product_collectiondiv .tabs-panel {
 	max-height: 200px;
 	overflow-y: auto;
@@ -41,73 +19,36 @@
 	background: #fff;
 }
 
-/* ── Checklist items ─────────────────────────────────────────────────────── */
-#product_collectiondiv .categorychecklist {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
+#product_collectiondiv .categorychecklist { margin: 0; padding: 0; list-style: none; }
+#product_collectiondiv .categorychecklist li { margin: 0; padding: 3px 0 3px 4px; line-height: 1.4; word-break: break-word; }
+#product_collectiondiv .categorychecklist li label { font-size: 13px; cursor: pointer; }
+#product_collectiondiv .categorychecklist ul { margin: 0 0 0 18px; padding: 0; list-style: none; }
 
-#product_collectiondiv .categorychecklist li {
-	margin: 0;
-	padding: 3px 0 3px 4px;
-	line-height: 1.4;
-	word-break: break-word;
-}
+#product_collectiondiv .taxonomy-add-new { display: inline-block; margin-top: 10px; font-size: 12px; font-weight: 600; text-decoration: none; color: #2271b1; }
+#product_collectiondiv .taxonomy-add-new:hover { color: #135e96; text-decoration: underline; }
 
-#product_collectiondiv .categorychecklist li label {
-	font-size: 13px;
-	cursor: pointer;
-}
-
-/* Indent child terms */
-#product_collectiondiv .categorychecklist ul {
-	margin: 0 0 0 18px;
-	padding: 0;
-	list-style: none;
-}
-
-/* ── "Add New Collection" link ───────────────────────────────────────────── */
-#product_collectiondiv .taxonomy-add-new {
-	display: inline-block;
-	margin-top: 10px;
-	font-size: 12px;
-	font-weight: 600;
-	text-decoration: none;
-	color: #2271b1;
-}
-
-#product_collectiondiv .taxonomy-add-new:hover {
-	color: #135e96;
-	text-decoration: underline;
-}
-
-/* ── Inline add form ─────────────────────────────────────────────────────── */
-#product_collectiondiv .category-add {
-	margin-top: 8px;
-}
-
+#product_collectiondiv .category-add { margin-top: 8px; }
 #product_collectiondiv .category-add input[type="text"],
-#product_collectiondiv .category-add select {
-	width: 100%;
-	margin-bottom: 6px;
-	box-sizing: border-box;
-}
+#product_collectiondiv .category-add select { width: 100%; margin-bottom: 6px; box-sizing: border-box; }
+#product_collectiondiv .category-add-submit { width: 100%; margin-top: 4px; }
 
-#product_collectiondiv .category-add-submit {
-	width: 100%;
-	margin-top: 4px;
-}
-
-/* ── Collections column in Products list table ───────────────────────────── */
+/* ── Collections column in Products list ─────────────────────────────────── */
+.manage-column.column-product_collection,
+th#product_collection,
 .column-product_collection {
-	width: 10%;
+	width: 10% !important;
+	min-width: 100px;
+	white-space: nowrap;
 }
+.column-product_collection a { text-decoration: none; }
+.column-product_collection a:hover { text-decoration: underline; }
 
-.column-product_collection a {
-	text-decoration: none;
+/* ── Thumbnail field on Add/Edit Collection forms ────────────────────────── */
+.term-thumbnail-wrap .ainbae-col-thumb-preview img {
+	max-width: 150px;
+	display: block;
+	border-radius: 4px;
+	margin-bottom: 8px;
+	border: 1px solid #dcdcde;
 }
-
-.column-product_collection a:hover {
-	text-decoration: underline;
-}
+.ainbae-col-upload-btn { margin-right: 4px; }

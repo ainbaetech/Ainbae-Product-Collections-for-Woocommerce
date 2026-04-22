@@ -1,15 +1,24 @@
 <?php
 /**
- * Frontend functionality — mirrors product_cat archive behaviour exactly.
+ * Frontend functionality.
  *
- * FIX #3 — Collection archive pages now use the SAME template as Product
- *           Categories (taxonomy-product_cat.php → archive-product.php),
- *           so they inherit exactly the same layout, sidebar behaviour, and
- *           CSS as the category pages. No custom sidebar will appear unless
- *           the category pages also have one. The body_class filter adds
- *           'woocommerce', 'woocommerce-page', and 'tax-product_cat' so that
- *           all theme and WooCommerce CSS rules that apply to category pages
- *           also apply to collection pages.
+ * ISSUE #1 FIX — Layout identical to Product Categories:
+ *
+ *   The root problem is that every WooCommerce-aware theme uses
+ *   is_product_category() (which calls is_tax('product_cat')) to decide
+ *   sidebar width, column count, and CSS class. Our custom taxonomy returns
+ *   false for that check, so themes apply a different layout.
+ *
+ *   Solution: in template_redirect (priority 5, before theme code fires at 10)
+ *   we temporarily change $wp_query->queried_object->taxonomy to 'product_cat'.
+ *   This makes is_product_category() return TRUE for the entire page render,
+ *   so the theme applies exactly the same layout it does for category pages.
+ *
+ *   We store a static flag ($is_collection_archive) set during pre_get_posts
+ *   so our own internal checks still work after the spoof changes is_tax().
+ *
+ *   We also filter term_link so any in-page links still point to /collection/…
+ *   rather than the spoofed /product-category/… URL.
  *
  * @package Ainbae\Collections
  */
@@ -21,6 +30,14 @@ class Ainbae_Collections_Frontend {
 	/** @var self|null */
 	private static ?self $instance = null;
 
+	/**
+	 * Set to true the moment pre_get_posts detects we're on a collection archive.
+	 * Use self::is_collection() for all internal checks instead of is_tax().
+	 *
+	 * @var bool
+	 */
+	private static bool $is_collection_archive = false;
+
 	public static function instance(): self {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -31,30 +48,41 @@ class Ainbae_Collections_Frontend {
 	private function __construct() {}
 
 	public function init(): void {
-		// ── Query ─────────────────────────────────────────────────────────────
-		add_action( 'pre_get_posts', [ $this, 'fix_archive_query' ], 10 );
+		// Query — runs before template_redirect, sets our flag.
+		add_action( 'pre_get_posts', array( $this, 'fix_archive_query' ), 10 );
 
-		// ── Template (FIX #3) ─────────────────────────────────────────────────
-		// Priority 20 — runs AFTER WooCommerce's own loader (@10) so we can
-		// inspect what it resolved and replace non-WooCommerce-aware templates.
-		add_filter( 'template_include', [ $this, 'use_product_cat_template' ], 20 );
+		// Issue #1 — Spoof queried_object->taxonomy before the theme loads.
+		add_action( 'template_redirect', array( $this, 'spoof_product_cat_taxonomy' ), 5 );
 
-		// ── Tell WooCommerce this IS a product archive ─────────────────────────
-		add_filter( 'woocommerce_is_product_archive', [ $this, 'is_product_archive' ] );
+		// Issue #1 — Fix term_link so /collection/ URLs stay correct after spoof.
+		add_filter( 'term_link', array( $this, 'fix_term_link' ), 10, 3 );
 
-		// ── Page title & description ───────────────────────────────────────────
-		add_filter( 'woocommerce_page_title',               [ $this, 'archive_page_title' ] );
-		add_filter( 'woocommerce_taxonomy_archive_description', [ $this, 'archive_description' ] );
+		// Tell WooCommerce this IS a product archive (hooks run with our flag).
+		add_filter( 'woocommerce_is_product_archive', array( $this, 'is_product_archive' ) );
 
-		// ── Breadcrumbs ────────────────────────────────────────────────────────
-		add_filter( 'woocommerce_get_breadcrumb', [ $this, 'add_breadcrumbs' ], 10, 2 );
+		// Page title & description.
+		add_filter( 'woocommerce_page_title',                    array( $this, 'archive_page_title' ) );
+		add_filter( 'woocommerce_taxonomy_archive_description',  array( $this, 'archive_description' ) );
 
-		// ── Body classes (FIX #3) ─────────────────────────────────────────────
-		add_filter( 'body_class', [ $this, 'add_body_classes' ] );
+		// Breadcrumbs.
+		add_filter( 'woocommerce_get_breadcrumb', array( $this, 'add_breadcrumbs' ), 10, 2 );
 
-		// ── <title> tag ────────────────────────────────────────────────────────
-		add_filter( 'wp_title',          [ $this, 'wp_title' ], 10, 2 );
-		add_filter( 'document_title_parts', [ $this, 'document_title' ] );
+		// Body classes.
+		add_filter( 'body_class', array( $this, 'add_body_classes' ) );
+
+		// <title> tag.
+		add_filter( 'wp_title',             array( $this, 'wp_title' ), 10, 2 );
+		add_filter( 'document_title_parts', array( $this, 'document_title' ) );
+	}
+
+	// ══════════════════════════════════════════════════════════════════════════
+	//  Helper — is the current page a collection archive?
+	//  Use this everywhere instead of is_tax( AINBAE_COL_TAXONOMY ).
+	// ══════════════════════════════════════════════════════════════════════════
+
+	public static function is_collection(): bool {
+		// After spoof, is_tax(AINBAE_COL_TAXONOMY) returns false, so we rely on flag.
+		return self::$is_collection_archive || is_tax( AINBAE_COL_TAXONOMY );
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════
@@ -66,76 +94,82 @@ class Ainbae_Collections_Frontend {
 			return;
 		}
 
+		// Store flag before spoof changes is_tax() result.
+		self::$is_collection_archive = true;
+
 		$query->set( 'post_type', 'product' );
 
-		$per_page = (int) apply_filters(
-			'loop_shop_per_page',
-			wc_get_default_products_per_row() * wc_get_default_product_rows_per_page()
-		);
-		$query->set( 'posts_per_page', $per_page );
+		// Use WooCommerce default per-page without creating an unprefixed filter.
+		$per_page = wc_get_default_products_per_row() * wc_get_default_product_rows_per_page();
+		$query->set( 'posts_per_page', max( 1, (int) $per_page ) );
 
-		$existing_tax_query = (array) $query->get( 'tax_query' );
+		// Exclude catalogue-hidden products.
+		$existing = (array) $query->get( 'tax_query' );
 		$query->set( 'tax_query', array_merge(
-			$existing_tax_query,
-			[
+			$existing,
+			array(
 				'relation' => 'AND',
-				[
+				array(
 					'taxonomy' => 'product_visibility',
 					'field'    => 'name',
-					'terms'    => [ 'exclude-from-catalog' ],
+					'terms'    => array( 'exclude-from-catalog' ),
 					'operator' => 'NOT IN',
-				],
-			]
+				),
+			)
 		) );
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════
-	//  FIX #3 — Template: always use the product_cat template so the layout
-	//            (sidebar, columns, CSS) is identical to category pages.
+	//  ISSUE #1 — Spoof queried_object->taxonomy = 'product_cat'
 	//
-	//  Lookup order (same priority as WooCommerce uses for product_cat):
-	//   1. {child-theme}/woocommerce/taxonomy-product_cat-{slug}.php
-	//   2. {child-theme}/woocommerce/taxonomy-product_cat.php
-	//   3. {parent-theme}/woocommerce/taxonomy-product_cat.php
-	//   4. {child-theme}/woocommerce/archive-product.php
-	//   5. {parent-theme}/woocommerce/archive-product.php
-	//   6. WooCommerce built-in: /templates/archive-product.php
+	//  Priority 5 fires BEFORE:
+	//    - Theme's template_redirect @ 10 (Astra, OceanWP, Flatsome, etc.)
+	//    - WooCommerce's template_redirect @ 10
+	//
+	//  After this runs, is_product_category() returns TRUE for the whole request,
+	//  so themes use their product_cat layout automatically.
 	// ══════════════════════════════════════════════════════════════════════════
 
-	public function use_product_cat_template( string $template ): string {
-		if ( ! is_tax( AINBAE_COL_TAXONOMY ) ) {
-			return $template;
+	public function spoof_product_cat_taxonomy(): void {
+		if ( ! self::$is_collection_archive ) {
+			return;
 		}
 
-		$term = get_queried_object();
-		$slug = $term instanceof \WP_Term ? '-' . $term->slug : '';
+		global $wp_query;
 
-		$child_wc_dir  = get_stylesheet_directory() . '/woocommerce/';
-		$parent_wc_dir = get_template_directory() . '/woocommerce/';
-		$wc_tpl_dir    = WC()->plugin_path() . '/templates/';
-
-		$candidates = array_filter( [
-			// Slug-specific product_cat template (child theme)
-			$slug ? $child_wc_dir . 'taxonomy-product_cat' . $slug . '.php' : '',
-			// Generic product_cat template (child theme)
-			$child_wc_dir . 'taxonomy-product_cat.php',
-			// Generic product_cat template (parent theme)
-			$parent_wc_dir . 'taxonomy-product_cat.php',
-			// Fallback archive (child theme)
-			$child_wc_dir . 'archive-product.php',
-			// Fallback archive (parent theme)
-			$parent_wc_dir . 'archive-product.php',
-			// WooCommerce built-in archive
-			$wc_tpl_dir . 'archive-product.php',
-		] );
-
-		foreach ( $candidates as $candidate ) {
-			if ( file_exists( $candidate ) ) {
-				return $candidate;
-			}
+		if ( ! isset( $wp_query->queried_object ) || ! ( $wp_query->queried_object instanceof \WP_Term ) ) {
+			return;
 		}
 
-		return $template;
+		// Store original taxonomy on the object so term_link filter can restore it.
+		$wp_query->queried_object->ainbae_real_taxonomy    = $wp_query->queried_object->taxonomy;
+		$wp_query->queried_object->ainbae_real_slug        = $wp_query->queried_object->slug;
+
+		// Change taxonomy to product_cat → makes is_product_category() return TRUE.
+		$wp_query->queried_object->taxonomy = 'product_cat';
+	}
+
+	// ══════════════════════════════════════════════════════════════════════════
+	//  ISSUE #1 — Fix term_link so URLs still point to /collection/…
+	//
+	//  After the spoof, get_term_link() would generate /product-category/…
+	//  because WordPress uses the object's taxonomy property for rewrite rules.
+	//  We detect spoofed terms and regenerate the correct /collection/… URL.
+	// ══════════════════════════════════════════════════════════════════════════
+
+	public function fix_term_link( string $url, \WP_Term $term, string $taxonomy ): string {
+		// Only correct links for spoofed collection terms.
+		if ( 'product_cat' !== $taxonomy || ! isset( $term->ainbae_real_taxonomy ) ) {
+			return $url;
+		}
+
+		// Temporarily restore real taxonomy to generate the correct URL,
+		// then put the spoof back so is_product_category() keeps working.
+		$term->taxonomy = $term->ainbae_real_taxonomy;
+		$correct_url    = get_term_link( $term->term_id, $term->ainbae_real_taxonomy );
+		$term->taxonomy = 'product_cat';  // Restore spoof.
+
+		return is_wp_error( $correct_url ) ? $url : $correct_url;
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════
@@ -143,7 +177,7 @@ class Ainbae_Collections_Frontend {
 	// ══════════════════════════════════════════════════════════════════════════
 
 	public function is_product_archive( bool $is_archive ): bool {
-		return $is_archive || is_tax( AINBAE_COL_TAXONOMY );
+		return $is_archive || self::is_collection();
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════
@@ -151,7 +185,7 @@ class Ainbae_Collections_Frontend {
 	// ══════════════════════════════════════════════════════════════════════════
 
 	public function archive_page_title( string $title ): string {
-		if ( is_tax( AINBAE_COL_TAXONOMY ) ) {
+		if ( self::is_collection() ) {
 			$term = get_queried_object();
 			return $term instanceof \WP_Term ? $term->name : $title;
 		}
@@ -159,7 +193,7 @@ class Ainbae_Collections_Frontend {
 	}
 
 	public function archive_description(): string {
-		if ( is_tax( AINBAE_COL_TAXONOMY ) ) {
+		if ( self::is_collection() ) {
 			$term = get_queried_object();
 			if ( $term instanceof \WP_Term && ! empty( $term->description ) ) {
 				return '<div class="term-description">' . wp_kses_post( wpautop( wptexturize( $term->description ) ) ) . '</div>';
@@ -169,11 +203,11 @@ class Ainbae_Collections_Frontend {
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════
-	//  Breadcrumbs
+	//  Breadcrumbs — use term_id + real taxonomy to avoid spoofed URLs.
 	// ══════════════════════════════════════════════════════════════════════════
 
 	public function add_breadcrumbs( array $crumbs, $breadcrumb ): array {
-		if ( ! is_tax( AINBAE_COL_TAXONOMY ) ) {
+		if ( ! self::is_collection() ) {
 			return $crumbs;
 		}
 
@@ -184,44 +218,45 @@ class Ainbae_Collections_Frontend {
 
 		array_pop( $crumbs );
 
-		// If a Collections page exists, add it as a breadcrumb parent.
+		// Link to the Collections landing page if one is set.
 		$page_id = (int) get_option( AINBAE_COL_PAGE_OPTION, 0 );
 		if ( $page_id && get_post( $page_id ) ) {
-			$crumbs[] = [ get_the_title( $page_id ), get_permalink( $page_id ) ];
+			$crumbs[] = array( get_the_title( $page_id ), get_permalink( $page_id ) );
 		}
 
+		// Ancestor crumbs — always use real taxonomy for correct URLs.
 		$ancestors = array_reverse( get_ancestors( $term->term_id, AINBAE_COL_TAXONOMY ) );
 		foreach ( $ancestors as $ancestor_id ) {
 			$ancestor = get_term( $ancestor_id, AINBAE_COL_TAXONOMY );
 			if ( $ancestor instanceof \WP_Term ) {
-				$crumbs[] = [ $ancestor->name, get_term_link( $ancestor ) ];
+				$link     = get_term_link( $ancestor->term_id, AINBAE_COL_TAXONOMY );
+				$crumbs[] = array( $ancestor->name, is_wp_error( $link ) ? '' : $link );
 			}
 		}
 
-		$crumbs[] = [ $term->name, get_term_link( $term ) ];
+		// Current term — no link (active page).
+		$current_link = get_term_link( $term->term_id, AINBAE_COL_TAXONOMY );
+		$crumbs[]     = array( $term->name, is_wp_error( $current_link ) ? '' : $current_link );
 
 		return $crumbs;
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════
-	//  FIX #3 — Body classes: add WooCommerce + product_cat classes so the
-	//            theme applies the exact same CSS/layout as category pages.
+	//  Body classes.
 	// ══════════════════════════════════════════════════════════════════════════
 
 	public function add_body_classes( array $classes ): array {
-		if ( is_tax( AINBAE_COL_TAXONOMY ) ) {
+		if ( self::is_collection() ) {
 			$term = get_queried_object();
 
-			// Core WooCommerce classes (so woocommerce.css rules apply).
+			// Core WooCommerce classes so woocommerce.css rules apply.
 			$classes[] = 'woocommerce';
 			$classes[] = 'woocommerce-page';
 
-			// Make the theme treat this page like a product category page.
-			$classes[] = 'tax-product_cat';
-
-			// Descriptive classes for custom styling if needed.
-			$classes[] = 'tax-' . AINBAE_COL_TAXONOMY;
+			// Extra descriptive classes.
+			$classes[] = 'tax-' . sanitize_html_class( AINBAE_COL_TAXONOMY );
 			$classes[] = 'collection-archive';
+
 			if ( $term instanceof \WP_Term ) {
 				$classes[] = 'collection-' . sanitize_html_class( $term->slug );
 			}
@@ -230,11 +265,11 @@ class Ainbae_Collections_Frontend {
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════
-	//  <title> tag
+	//  <title> tag.
 	// ══════════════════════════════════════════════════════════════════════════
 
 	public function wp_title( string $title, string $sep ): string {
-		if ( is_tax( AINBAE_COL_TAXONOMY ) ) {
+		if ( self::is_collection() ) {
 			$term = get_queried_object();
 			if ( $term instanceof \WP_Term ) {
 				return $term->name . " $sep " . get_bloginfo( 'name' );
@@ -244,7 +279,7 @@ class Ainbae_Collections_Frontend {
 	}
 
 	public function document_title( array $parts ): array {
-		if ( is_tax( AINBAE_COL_TAXONOMY ) ) {
+		if ( self::is_collection() ) {
 			$term = get_queried_object();
 			if ( $term instanceof \WP_Term ) {
 				$parts['title'] = $term->name;
