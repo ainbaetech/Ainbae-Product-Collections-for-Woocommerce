@@ -4,7 +4,7 @@
  * Plugin Name:          Ainbae Product Collections for WooCommerce
  * Plugin URI:           https://ainbae.com
  * Description:          Adds a "Collections" taxonomy to WooCommerce — works exactly like Product Categories with full hierarchy, admin panel, and frontend archive support.
- * Version:              1.0.0
+ * Version:              1.1.0
  * Requires at least:    5.8
  * Tested up to:       	 6.9
  * Requires PHP:         7.4
@@ -15,26 +15,30 @@
  * Text Domain:          ainbae-collections
  * Domain Path:          /languages
  * WC requires at least: 6.0
- * WC tested up to: 10.7
+ * WC tested up to:      10.7
  *
  * @package Ainbae\Collections
  */
+
 
 if (! defined('ABSPATH')) {
 	exit;
 }
 // ── Constants ──────────────────────────────────────────────────────────────────
-define('AINBAE_COL_VERSION',  '1.0.0');
-define('AINBAE_COL_TAXONOMY', 'product_collection');      // Taxonomy name
-define('AINBAE_COL_SLUG',     'collection');               // URL slug → /collection/summer/
-define('AINBAE_COL_FILE',     __FILE__);
-define('AINBAE_COL_PATH',     plugin_dir_path(__FILE__));
-define('AINBAE_COL_URL',      plugin_dir_url(__FILE__));
+define('AINBAE_COL_VERSION',     '1.1.0');
+define('AINBAE_COL_TAXONOMY',    'product_collection');   // Taxonomy name
+define('AINBAE_COL_SLUG',        'collection');            // URL slug → /collection/summer/
+define('AINBAE_COL_PAGE_OPTION', 'ainbae_col_page_id');   // Option key for collections page
+define('AINBAE_COL_FILE',        __FILE__);
+define('AINBAE_COL_PATH',        plugin_dir_path(__FILE__));
+define('AINBAE_COL_URL',         plugin_dir_url(__FILE__));
 
 // ── Includes ───────────────────────────────────────────────────────────────────
 require_once AINBAE_COL_PATH . 'includes/class-ainbae-collections-taxonomy.php';
 require_once AINBAE_COL_PATH . 'includes/class-ainbae-collections-admin.php';
 require_once AINBAE_COL_PATH . 'includes/class-ainbae-collections-frontend.php';
+require_once AINBAE_COL_PATH . 'includes/class-ainbae-collections-page.php';
+require_once AINBAE_COL_PATH . 'includes/class-ainbae-collections-settings.php';
 
 /**
  * Main bootstrap class — singleton.
@@ -73,16 +77,24 @@ final class Ainbae_Product_Collections
 		// Register taxonomy as early as possible.
 		add_action('init', [Ainbae_Collections_Taxonomy::instance(), 'register'], 5);
 
-		// Boot admin and frontend layers.
+		// Boot all feature layers.
 		Ainbae_Collections_Admin::instance()->init();
 		Ainbae_Collections_Frontend::instance()->init();
+		Ainbae_Collections_Page::instance()->init();
+		Ainbae_Collections_Settings::instance()->init();
 	}
 
-	/** Flush rewrite rules on activation so archive slugs work immediately. */
+	/**
+	 * Activation:
+	 *  - Register taxonomy so rewrite rules include the collection slug.
+	 *  - Flush rewrite rules.
+	 *  - Conflict-safe collection landing page creation (FIX #4).
+	 */
 	public function on_activate(): void
 	{
 		Ainbae_Collections_Taxonomy::instance()->register();
 		flush_rewrite_rules();
+		Ainbae_Collections_Page::maybe_create_page(); // FIX #4
 	}
 
 	/** Clean up rewrite rules on deactivation. */

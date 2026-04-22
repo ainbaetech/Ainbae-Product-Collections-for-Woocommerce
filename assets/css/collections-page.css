@@ -1,0 +1,77 @@
+/**
+ * Ainbae Collections — Collections Landing Page Styles
+ *
+ * The [ainbae_collections] shortcode renders using WooCommerce's own
+ * .products ul / .product-category markup so it inherits all WooCommerce
+ * and theme styles automatically. This file only provides the column-count
+ * CSS custom grid and a couple of small tweaks.
+ */
+
+/* ── Grid wrapper ─────────────────────────────────────────────────────────── */
+.ainbae-col-grid .products {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5em;
+}
+
+/* ── Column widths (mirror WooCommerce columns-N classes) ─────────────────── */
+.ainbae-col-grid-1 .products li.product { flex: 0 0 100%; max-width: 100%; }
+.ainbae-col-grid-2 .products li.product { flex: 0 0 calc(50% - 0.75em); max-width: calc(50% - 0.75em); }
+.ainbae-col-grid-3 .products li.product { flex: 0 0 calc(33.333% - 1em); max-width: calc(33.333% - 1em); }
+.ainbae-col-grid-4 .products li.product { flex: 0 0 calc(25% - 1.125em); max-width: calc(25% - 1.125em); }
+.ainbae-col-grid-5 .products li.product { flex: 0 0 calc(20% - 1.2em);   max-width: calc(20% - 1.2em); }
+.ainbae-col-grid-6 .products li.product { flex: 0 0 calc(16.666% - 1.25em); max-width: calc(16.666% - 1.25em); }
+
+/* ── Card link ───────────────────────────────────────────────────────────── */
+.ainbae-col-card {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+}
+
+.ainbae-col-card:hover {
+	text-decoration: none;
+	color: inherit;
+}
+
+/* ── Thumbnail ────────────────────────────────────────────────────────────── */
+.ainbae-col-card img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+/* ── Description ─────────────────────────────────────────────────────────── */
+.ainbae-col-card-desc {
+	font-size: 0.9em;
+	color: #555;
+	margin: 0.25em 0 0;
+}
+
+/* ── Empty message ────────────────────────────────────────────────────────── */
+.ainbae-col-empty {
+	text-align: center;
+	padding: 2em;
+	color: #555;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media ( max-width: 768px ) {
+	.ainbae-col-grid-3 .products li.product,
+	.ainbae-col-grid-4 .products li.product,
+	.ainbae-col-grid-5 .products li.product,
+	.ainbae-col-grid-6 .products li.product {
+		flex: 0 0 calc(50% - 0.75em);
+		max-width: calc(50% - 0.75em);
+	}
+}
+
+@media ( max-width: 480px ) {
+	.ainbae-col-grid .products li.product {
+		flex: 0 0 100%;
+		max-width: 100%;
+	}
+}

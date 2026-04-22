@@ -2,6 +2,14 @@
 /**
  * Registers the product_collection custom taxonomy.
  *
+ * FIX #1 — show_in_menu set to FALSE so WordPress does NOT auto-inject a
+ *           second "Collections" entry under Products. The Admin class adds
+ *           exactly one menu item manually.
+ *
+ * FIX #2 — show_admin_column set to FALSE so WordPress does NOT auto-inject
+ *           a "Product Collections" column. The Admin class adds exactly one
+ *           "Collections" column manually.
+ *
  * @package Ainbae\Collections
  */
 
@@ -44,25 +52,25 @@ class Ainbae_Collections_Taxonomy {
 	private function taxonomy_args(): array {
 		return [
 			// ── Behaviour ────────────────────────────────────────────────────
-			'hierarchical'      => true,         // parent / child support
-			'public'            => true,
-			'publicly_queryable'=> true,
-			'show_ui'           => true,
-			'show_in_menu'      => true,
-			'show_in_nav_menus' => true,
-			'show_admin_column' => true,         // column in Products list table
-			'show_in_rest'      => true,         // Block editor / REST API
-			'query_var'         => true,
+			'hierarchical'       => true,
+			'public'             => true,
+			'publicly_queryable' => true,
+			'show_ui'            => true,
+			'show_in_menu'       => false,  // FIX #1: prevents auto double menu entry
+			'show_in_nav_menus'  => true,
+			'show_admin_column'  => false,  // FIX #2: prevents auto duplicate column
+			'show_in_rest'       => true,
+			'query_var'          => true,
 
 			// ── URL rewrite ───────────────────────────────────────────────────
-			'rewrite'           => [
-				'slug'         => AINBAE_COL_SLUG,  // /collection/summer/
+			'rewrite' => [
+				'slug'         => AINBAE_COL_SLUG,
 				'with_front'   => false,
-				'hierarchical' => true,              // /collection/season/summer/
+				'hierarchical' => true,
 			],
 
 			// ── Capabilities — inherit from WooCommerce product_cat ───────────
-			'capabilities'      => [
+			'capabilities' => [
 				'manage_terms' => 'manage_product_terms',
 				'edit_terms'   => 'edit_product_terms',
 				'delete_terms' => 'delete_product_terms',
@@ -70,7 +78,7 @@ class Ainbae_Collections_Taxonomy {
 			],
 
 			// ── Labels ────────────────────────────────────────────────────────
-			'labels'            => $this->taxonomy_labels(),
+			'labels' => $this->taxonomy_labels(),
 		];
 	}
 
@@ -81,7 +89,7 @@ class Ainbae_Collections_Taxonomy {
 	 */
 	private function taxonomy_labels(): array {
 		return [
-			'name'                       => _x( 'Product Collections', 'taxonomy general name', 'ainbae-collections' ),
+			'name'                       => _x( 'Collections', 'taxonomy general name', 'ainbae-collections' ),
 			'singular_name'              => _x( 'Collection', 'taxonomy singular name', 'ainbae-collections' ),
 			'menu_name'                  => __( 'Collections', 'ainbae-collections' ),
 			'all_items'                  => __( 'All Collections', 'ainbae-collections' ),
@@ -93,7 +101,7 @@ class Ainbae_Collections_Taxonomy {
 			'parent_item'                => __( 'Parent Collection', 'ainbae-collections' ),
 			'parent_item_colon'          => __( 'Parent Collection:', 'ainbae-collections' ),
 			'search_items'               => __( 'Search Collections', 'ainbae-collections' ),
-			'popular_items'              => null,   // hidden for hierarchical
+			'popular_items'              => null,
 			'separate_items_with_commas' => null,
 			'add_or_remove_items'        => null,
 			'choose_from_most_used'      => null,

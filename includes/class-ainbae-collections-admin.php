@@ -1,9 +1,9 @@
 <?php
 /**
  * Admin-side functionality:
- *  - Products → Collections submenu
+ *  - Products → Collections submenu (exactly ONE entry — FIX #1)
  *  - Side meta box on product edit (identical UX to Product Categories)
- *  - Collections column in Products list table
+ *  - ONE Collections column in Products list table (FIX #2)
  *  - Inline "Add New Collection" with parent dropdown
  *  - HPOS compatibility declaration
  *
@@ -31,17 +31,17 @@ class Ainbae_Collections_Admin {
 		add_action( 'admin_menu', [ $this, 'register_menu' ] );
 
 		// ── Meta box ─────────────────────────────────────────────────────────
-		// Priority 100 → runs after WP auto-adds the taxonomy meta box (priority 10)
-		// so we can cleanly remove it and add our own to the side column.
 		add_action( 'add_meta_boxes', [ $this, 'register_metabox' ], 100 );
 
 		// ── Save ─────────────────────────────────────────────────────────────
 		add_action( 'woocommerce_process_product_meta', [ $this, 'save_collections' ], 10, 2 );
 
-		// ── Product list table columns ────────────────────────────────────────
-		add_filter( 'manage_edit-product_columns',         [ $this, 'add_list_column' ] );
-		add_action( 'manage_product_posts_custom_column',  [ $this, 'render_list_column' ], 10, 2 );
-		add_filter( 'manage_edit-product_sortable_columns',[ $this, 'make_column_sortable' ] );
+		// ── Product list table — ONE column (FIX #2) ─────────────────────────
+		// We use manage_product_posts_columns (not manage_edit-product_columns)
+		// to be consistent; both fire but posts_columns is the canonical one.
+		add_filter( 'manage_product_posts_columns',          [ $this, 'add_list_column' ] );
+		add_action( 'manage_product_posts_custom_column',    [ $this, 'render_list_column' ], 10, 2 );
+		add_filter( 'manage_edit-product_sortable_columns',  [ $this, 'make_column_sortable' ] );
 
 		// ── Filter by collection in product list ──────────────────────────────
 		add_action( 'restrict_manage_posts', [ $this, 'add_collection_filter_dropdown' ], 20 );
@@ -54,12 +54,9 @@ class Ainbae_Collections_Admin {
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════
-	//  Menu
+	//  Menu — exactly one "Collections" item under Products (FIX #1)
 	// ══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Add "Collections" under Products → Collections in the WP admin sidebar.
-	 */
 	public function register_menu(): void {
 		add_submenu_page(
 			'edit.php?post_type=product',
@@ -74,12 +71,8 @@ class Ainbae_Collections_Admin {
 	//  Meta box
 	// ══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Remove the WordPress auto-generated meta box and register our own on the
-	 * side column — exactly as WooCommerce does for product_cat.
-	 */
 	public function register_metabox(): void {
-		// Remove WP's auto-generated box (it may land in normal or side).
+		// Remove WP's auto-generated box (just in case it ever reappears).
 		remove_meta_box( AINBAE_COL_TAXONOMY . 'div', 'product', 'side' );
 		remove_meta_box( AINBAE_COL_TAXONOMY . 'div', 'product', 'normal' );
 
@@ -93,10 +86,6 @@ class Ainbae_Collections_Admin {
 		);
 	}
 
-	/**
-	 * Render the Collections meta box.
-	 * Mirrors WooCommerce's product_cat meta box — tabs, checkboxes, inline add form.
-	 */
 	public function render_metabox( WP_Post $post ): void {
 		$taxonomy   = AINBAE_COL_TAXONOMY;
 		$tax_obj    = get_taxonomy( $taxonomy );
@@ -239,41 +228,35 @@ class Ainbae_Collections_Admin {
 	//  Saving
 	// ══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Persist selected collections when a product is saved via WooCommerce.
-	 * WordPress would usually handle tax_input[] automatically, but WooCommerce's
-	 * save hook skips it — so we do it explicitly here.
-	 *
-	 * @param int      $post_id Product post ID.
-	 * @param \WP_Post $post    Product post object.
-	 */
 	public function save_collections( int $post_id, \WP_Post $post ): void {
 		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'update-post_' . $post_id ) ) {
 			return;
 		}
 
 		$taxonomy = AINBAE_COL_TAXONOMY;
-
-		// Collect submitted term IDs (checkboxes send tax_input[taxonomy][]).
 		$term_ids = [];
 		if ( ! empty( $_POST['tax_input'][ $taxonomy ] ) ) {
 			$term_ids = array_map( 'absint', (array) $_POST['tax_input'][ $taxonomy ] );
 		}
-
 		wp_set_post_terms( $post_id, $term_ids, $taxonomy );
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════
-	//  Products list table — Collections column
+	//  Products list table — exactly ONE "Collections" column (FIX #2)
 	// ══════════════════════════════════════════════════════════════════════════
 
 	/**
-	 * Insert the Collections column immediately after the Categories column.
+	 * Insert a single "Collections" column after the Categories column.
+	 * Because show_admin_column is now FALSE in the taxonomy, WordPress will
+	 * NOT auto-add a "Product Collections" column — so this is the only one.
 	 *
 	 * @param  array<string,string> $columns
 	 * @return array<string,string>
 	 */
 	public function add_list_column( array $columns ): array {
+		// Belt-and-suspenders: strip any auto-generated taxonomy column.
+		unset( $columns[ 'taxonomy-' . AINBAE_COL_TAXONOMY ] );
+
 		$new = [];
 		foreach ( $columns as $key => $label ) {
 			$new[ $key ] = $label;
@@ -281,19 +264,13 @@ class Ainbae_Collections_Admin {
 				$new[ AINBAE_COL_TAXONOMY ] = __( 'Collections', 'ainbae-collections' );
 			}
 		}
-		// If product_cat column doesn't exist, just append.
+		// Fallback: no product_cat column present.
 		if ( ! isset( $new[ AINBAE_COL_TAXONOMY ] ) ) {
 			$new[ AINBAE_COL_TAXONOMY ] = __( 'Collections', 'ainbae-collections' );
 		}
 		return $new;
 	}
 
-	/**
-	 * Render the Collections column content.
-	 *
-	 * @param string $column  Column name.
-	 * @param int    $post_id Product post ID.
-	 */
 	public function render_list_column( string $column, int $post_id ): void {
 		if ( AINBAE_COL_TAXONOMY !== $column ) {
 			return;
@@ -310,8 +287,8 @@ class Ainbae_Collections_Admin {
 			static function ( \WP_Term $term ): string {
 				$url = add_query_arg(
 					[
-						'post_type'          => 'product',
-						AINBAE_COL_TAXONOMY  => $term->slug,
+						'post_type'         => 'product',
+						AINBAE_COL_TAXONOMY => $term->slug,
 					],
 					admin_url( 'edit.php' )
 				);
@@ -340,11 +317,6 @@ class Ainbae_Collections_Admin {
 	//  Filter dropdown in product list
 	// ══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Add a "Filter by Collection" dropdown in the Products list table toolbar.
-	 *
-	 * @param string $post_type Current post type.
-	 */
 	public function add_collection_filter_dropdown( string $post_type ): void {
 		if ( 'product' !== $post_type ) {
 			return;
@@ -370,11 +342,6 @@ class Ainbae_Collections_Admin {
 	//  Assets
 	// ══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Enqueue admin CSS on the product edit screen and collections taxonomy screens.
-	 *
-	 * @param string $hook Current admin page hook.
-	 */
 	public function enqueue_assets( string $hook ): void {
 		$screen = get_current_screen();
 
@@ -402,7 +369,6 @@ class Ainbae_Collections_Admin {
 	//  HPOS
 	// ══════════════════════════════════════════════════════════════════════════
 
-	/** Declare compatibility with WooCommerce High-Performance Order Storage. */
 	public function declare_hpos_compatibility(): void {
 		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
