@@ -4,14 +4,14 @@
  *
  * show_in_menu      = false → prevents auto double menu entry under Products.
  * show_admin_column = false → prevents auto duplicate column in Products list.
- * Both are added manually by Ainbae_Collections_Admin exactly once.
+ * Both are added manually by AinbaeCFWoo_Collections_Admin exactly once.
  *
- * @package Ainbae\Collections
+ * @package AinbaeCFWoo\Collections
  */
 
 defined( 'ABSPATH' ) || exit;
 
-class Ainbae_Collections_Taxonomy {
+class AinbaeCFWoo_Collections_Taxonomy {
 
 	/** @var self|null */
 	private static ?self $instance = null;
@@ -29,12 +29,12 @@ class Ainbae_Collections_Taxonomy {
 	 * Register the taxonomy — idempotent.
 	 */
 	public function register(): void {
-		if ( taxonomy_exists( AINBAE_COL_TAXONOMY ) ) {
+		if ( taxonomy_exists( AINBAECFWOO_COL_TAXONOMY ) ) {
 			return;
 		}
 
 		register_taxonomy(
-			AINBAE_COL_TAXONOMY,
+			AINBAECFWOO_COL_TAXONOMY,
 			array( 'product' ),
 			$this->taxonomy_args()
 		);
@@ -55,7 +55,7 @@ class Ainbae_Collections_Taxonomy {
 			'show_in_rest'       => true,
 			'query_var'          => true,
 			'rewrite'            => array(
-				'slug'         => AINBAE_COL_SLUG,
+				'slug'         => AINBAECFWOO_COL_SLUG,
 				'with_front'   => false,
 				'hierarchical' => true,
 			),

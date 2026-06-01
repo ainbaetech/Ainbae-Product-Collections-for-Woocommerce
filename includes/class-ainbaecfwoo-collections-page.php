@@ -2,15 +2,15 @@
 /**
  * Collections Landing Page.
  *
- * Provides [ainbae_collections] shortcode and conflict-safe page creation.
+ * Provides [ainbaecfwoo_collections] shortcode and conflict-safe page creation.
  * Uses thumbnail_id term meta (same key as WooCommerce product_cat).
  *
- * @package Ainbae\Collections
+ * @package AinbaeCFWoo\Collections
  */
 
 defined( 'ABSPATH' ) || exit;
 
-class Ainbae_Collections_Page {
+class AinbaeCFWoo_Collections_Page {
 
 	/** @var self|null */
 	private static ?self $instance = null;
@@ -25,12 +25,12 @@ class Ainbae_Collections_Page {
 	private function __construct() {}
 
 	public function init(): void {
-		add_shortcode( 'ainbae_collections', array( $this, 'render_shortcode' ) );
+		add_shortcode( 'ainbaecfwoo_collections', array( $this, 'render_shortcode' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_styles' ) );
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════
-	//  Shortcode — [ainbae_collections columns="3" orderby="name" order="ASC"]
+	//  Shortcode — [ainbaecfwoo_collections columns="3" orderby="name" order="ASC"]
 	// ══════════════════════════════════════════════════════════════════════════
 
 	public function render_shortcode( $atts ): string {
@@ -40,10 +40,10 @@ class Ainbae_Collections_Page {
 			'order'      => 'ASC',
 			'hide_empty' => 0,
 			'limit'      => -1,
-		), $atts, 'ainbae_collections' );
+		), $atts, 'ainbaecfwoo_collections' );
 
 		$terms = get_terms( array(
-			'taxonomy'   => AINBAE_COL_TAXONOMY,
+			'taxonomy'   => AINBAECFWOO_COL_TAXONOMY,
 			'orderby'    => sanitize_key( $atts['orderby'] ),
 			'order'      => strtoupper( $atts['order'] ) === 'DESC' ? 'DESC' : 'ASC',
 			'hide_empty' => (int) $atts['hide_empty'],
@@ -51,7 +51,7 @@ class Ainbae_Collections_Page {
 		) );
 
 		if ( is_wp_error( $terms ) || empty( $terms ) ) {
-			return '<p class="ainbae-col-empty woocommerce-info">'
+			return '<p class="ainbaecfwoo-col-empty woocommerce-info">'
 				. esc_html__( 'No collections found.', 'ainbae-product-collections-for-woocommerce' )
 				. '</p>';
 		}
@@ -60,11 +60,11 @@ class Ainbae_Collections_Page {
 
 		ob_start();
 		?>
-		<div class="ainbae-col-grid ainbae-col-grid-<?php echo esc_attr( $cols ); ?> woocommerce">
+		<div class="ainbaecfwoo-col-grid ainbaecfwoo-col-grid-<?php echo esc_attr( $cols ); ?> woocommerce">
 			<ul class="products columns-<?php echo esc_attr( $cols ); ?>">
 			<?php foreach ( $terms as $term ) :
 				// Always use real taxonomy for links — term_id + taxonomy constant.
-				$link     = get_term_link( $term->term_id, AINBAE_COL_TAXONOMY );
+				$link     = get_term_link( $term->term_id, AINBAECFWOO_COL_TAXONOMY );
 				$thumb_id = (int) get_term_meta( $term->term_id, 'thumbnail_id', true );
 				$img_src  = $thumb_id
 					? wp_get_attachment_image_url( $thumb_id, 'woocommerce_thumbnail' )
@@ -73,9 +73,9 @@ class Ainbae_Collections_Page {
 					? (string) get_post_meta( $thumb_id, '_wp_attachment_image_alt', true )
 					: $term->name;
 			?>
-			<li class="product-category product ainbae-col-item">
+			<li class="product-category product ainbaecfwoo-col-item">
 				<a href="<?php echo esc_url( is_wp_error( $link ) ? '#' : $link ); ?>"
-				   class="ainbae-col-card woocommerce-loop-category__link">
+				   class="ainbaecfwoo-col-card woocommerce-loop-category__link">
 					<img src="<?php echo esc_url( $img_src ); ?>"
 					     alt="<?php echo esc_attr( $img_alt ?: $term->name ); ?>"
 					     class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail"
@@ -91,7 +91,7 @@ class Ainbae_Collections_Page {
 						</mark>
 					</h2>
 					<?php if ( $term->description ) : ?>
-						<p class="ainbae-col-card-desc">
+						<p class="ainbaecfwoo-col-card-desc">
 							<?php echo esc_html( wp_trim_words( $term->description, 20 ) ); ?>
 						</p>
 					<?php endif; ?>
@@ -111,15 +111,15 @@ class Ainbae_Collections_Page {
 	public function maybe_enqueue_styles(): void {
 		global $post;
 
-		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'ainbae_collections' ) ) {
+		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'ainbaecfwoo_collections' ) ) {
 			wp_enqueue_style( 'woocommerce-layout' );
 			wp_enqueue_style( 'woocommerce-smallscreen' );
 			wp_enqueue_style( 'woocommerce-general' );
 			wp_enqueue_style(
-				'ainbae-collections-page',
-				AINBAE_COL_URL . 'assets/css/collections-page.css',
+				'ainbaecfwoo-collections-page',
+				AINBAECFWOO_COL_URL . 'assets/css/collections-page.css',
 				array( 'woocommerce-layout' ),
-				AINBAE_COL_VERSION
+				AINBAECFWOO_COL_VERSION
 			);
 		}
 	}
@@ -130,7 +130,7 @@ class Ainbae_Collections_Page {
 
 	public static function maybe_create_page(): void {
 		// 1. Already have a valid saved page?
-		$saved_id = (int) get_option( AINBAE_COL_PAGE_OPTION, 0 );
+		$saved_id = (int) get_option( AINBAECFWOO_COL_PAGE_OPTION, 0 );
 		if ( $saved_id && get_post( $saved_id ) instanceof WP_Post ) {
 			return;
 		}
@@ -146,7 +146,7 @@ class Ainbae_Collections_Page {
 			'no_found_rows'  => true,
 			'fields'         => 'ids',
 			// Using WP_Query search for shortcode in post_content.
-			'_ainbae_shortcode_search' => 'ainbae_collections',
+			'_ainbaecfwoo_shortcode_search' => 'ainbaecfwoo_collections',
 		) );
 
 		// Fallback: simple direct DB check for shortcode in content.
@@ -160,22 +160,22 @@ class Ainbae_Collections_Page {
 					   AND post_status IN ('publish','draft','private')
 					   AND post_content LIKE %s
 					 LIMIT 1",
-					'%ainbae_collections%'
+					'%ainbaecfwoo_collections%'
 				)
 			);
 			if ( $found_id ) {
-				update_option( AINBAE_COL_PAGE_OPTION, $found_id );
+				update_option( AINBAECFWOO_COL_PAGE_OPTION, $found_id );
 				return;
 			}
 		} else {
-			update_option( AINBAE_COL_PAGE_OPTION, $existing->posts[0] );
+			update_option( AINBAECFWOO_COL_PAGE_OPTION, $existing->posts[0] );
 			return;
 		}
 
 		// 3. Page with /collections/ slug exists? Adopt it without touching content.
 		$slug_page = get_page_by_path( 'collections', OBJECT, 'page' );
 		if ( $slug_page instanceof WP_Post ) {
-			update_option( AINBAE_COL_PAGE_OPTION, $slug_page->ID );
+			update_option( AINBAECFWOO_COL_PAGE_OPTION, $slug_page->ID );
 			return;
 		}
 
@@ -183,14 +183,14 @@ class Ainbae_Collections_Page {
 		$page_id = wp_insert_post( array(
 			'post_title'     => __( 'Collections', 'ainbae-product-collections-for-woocommerce' ),
 			'post_name'      => 'collections',
-			'post_content'   => '[ainbae_collections]',
+			'post_content'   => '[ainbaecfwoo_collections]',
 			'post_status'    => 'publish',
 			'post_type'      => 'page',
 			'comment_status' => 'closed',
 		) );
 
 		if ( $page_id && ! is_wp_error( $page_id ) ) {
-			update_option( AINBAE_COL_PAGE_OPTION, $page_id );
+			update_option( AINBAECFWOO_COL_PAGE_OPTION, $page_id );
 		}
 	}
 }

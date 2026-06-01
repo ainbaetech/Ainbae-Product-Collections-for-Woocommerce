@@ -20,12 +20,12 @@
  *   We also filter term_link so any in-page links still point to /collection/…
  *   rather than the spoofed /product-category/… URL.
  *
- * @package Ainbae\Collections
+ * @package AinbaeCFWoo\Collections
  */
 
 defined( 'ABSPATH' ) || exit;
 
-class Ainbae_Collections_Frontend {
+class AinbaeCFWoo_Collections_Frontend {
 
 	/** @var self|null */
 	private static ?self $instance = null;
@@ -77,12 +77,12 @@ class Ainbae_Collections_Frontend {
 
 	// ══════════════════════════════════════════════════════════════════════════
 	//  Helper — is the current page a collection archive?
-	//  Use this everywhere instead of is_tax( AINBAE_COL_TAXONOMY ).
+	//  Use this everywhere instead of is_tax( AINBAECFWOO_COL_TAXONOMY ).
 	// ══════════════════════════════════════════════════════════════════════════
 
 	public static function is_collection(): bool {
-		// After spoof, is_tax(AINBAE_COL_TAXONOMY) returns false, so we rely on flag.
-		return self::$is_collection_archive || is_tax( AINBAE_COL_TAXONOMY );
+		// After spoof, is_tax(AINBAECFWOO_COL_TAXONOMY) returns false, so we rely on flag.
+		return self::$is_collection_archive || is_tax( AINBAECFWOO_COL_TAXONOMY );
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════
@@ -90,7 +90,7 @@ class Ainbae_Collections_Frontend {
 	// ══════════════════════════════════════════════════════════════════════════
 
 	public function fix_archive_query( \WP_Query $query ): void {
-		if ( is_admin() || ! $query->is_main_query() || ! is_tax( AINBAE_COL_TAXONOMY ) ) {
+		if ( is_admin() || ! $query->is_main_query() || ! is_tax( AINBAECFWOO_COL_TAXONOMY ) ) {
 			return;
 		}
 
@@ -142,8 +142,8 @@ class Ainbae_Collections_Frontend {
 		}
 
 		// Store original taxonomy on the object so term_link filter can restore it.
-		$wp_query->queried_object->ainbae_real_taxonomy    = $wp_query->queried_object->taxonomy;
-		$wp_query->queried_object->ainbae_real_slug        = $wp_query->queried_object->slug;
+		$wp_query->queried_object->ainbaecfwoo_real_taxonomy    = $wp_query->queried_object->taxonomy;
+		$wp_query->queried_object->ainbaecfwoo_real_slug        = $wp_query->queried_object->slug;
 
 		// Change taxonomy to product_cat → makes is_product_category() return TRUE.
 		$wp_query->queried_object->taxonomy = 'product_cat';
@@ -159,14 +159,14 @@ class Ainbae_Collections_Frontend {
 
 	public function fix_term_link( string $url, \WP_Term $term, string $taxonomy ): string {
 		// Only correct links for spoofed collection terms.
-		if ( 'product_cat' !== $taxonomy || ! isset( $term->ainbae_real_taxonomy ) ) {
+		if ( 'product_cat' !== $taxonomy || ! isset( $term->ainbaecfwoo_real_taxonomy ) ) {
 			return $url;
 		}
 
 		// Temporarily restore real taxonomy to generate the correct URL,
 		// then put the spoof back so is_product_category() keeps working.
-		$term->taxonomy = $term->ainbae_real_taxonomy;
-		$correct_url    = get_term_link( $term->term_id, $term->ainbae_real_taxonomy );
+		$term->taxonomy = $term->ainbaecfwoo_real_taxonomy;
+		$correct_url    = get_term_link( $term->term_id, $term->ainbaecfwoo_real_taxonomy );
 		$term->taxonomy = 'product_cat';  // Restore spoof.
 
 		return is_wp_error( $correct_url ) ? $url : $correct_url;
@@ -219,23 +219,23 @@ class Ainbae_Collections_Frontend {
 		array_pop( $crumbs );
 
 		// Link to the Collections landing page if one is set.
-		$page_id = (int) get_option( AINBAE_COL_PAGE_OPTION, 0 );
+		$page_id = (int) get_option( AINBAECFWOO_COL_PAGE_OPTION, 0 );
 		if ( $page_id && get_post( $page_id ) ) {
 			$crumbs[] = array( get_the_title( $page_id ), get_permalink( $page_id ) );
 		}
 
 		// Ancestor crumbs — always use real taxonomy for correct URLs.
-		$ancestors = array_reverse( get_ancestors( $term->term_id, AINBAE_COL_TAXONOMY ) );
+		$ancestors = array_reverse( get_ancestors( $term->term_id, AINBAECFWOO_COL_TAXONOMY ) );
 		foreach ( $ancestors as $ancestor_id ) {
-			$ancestor = get_term( $ancestor_id, AINBAE_COL_TAXONOMY );
+			$ancestor = get_term( $ancestor_id, AINBAECFWOO_COL_TAXONOMY );
 			if ( $ancestor instanceof \WP_Term ) {
-				$link     = get_term_link( $ancestor->term_id, AINBAE_COL_TAXONOMY );
+				$link     = get_term_link( $ancestor->term_id, AINBAECFWOO_COL_TAXONOMY );
 				$crumbs[] = array( $ancestor->name, is_wp_error( $link ) ? '' : $link );
 			}
 		}
 
 		// Current term — no link (active page).
-		$current_link = get_term_link( $term->term_id, AINBAE_COL_TAXONOMY );
+		$current_link = get_term_link( $term->term_id, AINBAECFWOO_COL_TAXONOMY );
 		$crumbs[]     = array( $term->name, is_wp_error( $current_link ) ? '' : $current_link );
 
 		return $crumbs;
@@ -254,7 +254,7 @@ class Ainbae_Collections_Frontend {
 			$classes[] = 'woocommerce-page';
 
 			// Extra descriptive classes.
-			$classes[] = 'tax-' . sanitize_html_class( AINBAE_COL_TAXONOMY );
+			$classes[] = 'tax-' . sanitize_html_class( AINBAECFWOO_COL_TAXONOMY );
 			$classes[] = 'collection-archive';
 
 			if ( $term instanceof \WP_Term ) {

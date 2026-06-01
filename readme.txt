@@ -2,34 +2,47 @@
 Contributors: ainbae
 Tags: woocommerce, collections, taxonomy, products
 Requires at least: 5.8
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.2.0
 WC requires at least: 6.0
 WC tested up to: 10.7
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Donate link: https://www.ainbae.com/donate
+
 
 Adds a "Collections" taxonomy to WooCommerce, working exactly like Product Categories.
 
 == Description ==
 
-Ainbae Product Collections adds a Collections taxonomy to WooCommerce products. Collection archive pages automatically inherit your theme's exact product category layout — same sidebar behaviour, same columns, same CSS — on every WooCommerce-compatible theme.
+Create curated product collections in WooCommerce without affecting your existing product categories.
+
+Ainbae Product Collections for WooCommerce adds a dedicated Collections taxonomy that works alongside Product Categories. Build seasonal collections, fashion collections, featured collections, brand collections, gift guides, and more.
+
+Collection archive pages automatically inherit your theme's WooCommerce category layout, ensuring a seamless shopping experience without additional configuration.
+
 
 = Features =
 * Collections taxonomy (hierarchical, like product categories)
 * Collection archive pages that look identical to your Product Category pages on every theme
 * Thumbnail image upload on Add New Collection and Edit Collection admin screens
-* Collections landing page with [ainbae_collections] shortcode
+* Collections landing page with [ainbaecfwoo_collections] shortcode
 * One "Collections" column in the Products list (no duplicates)
 * One "Collections" menu item under Products (no duplicates)
 * Filter products by collection in the admin Products list
 * Correct breadcrumbs with Collections page as parent
 * WooCommerce HPOS compatible
+* Dedicated Collections settings page under WooCommerce
+* Automatic Collections page creation with shortcode support
+* Product-to-Collection assignment from the product editor
+* Collection thumbnails for visually rich collection grids
+* Parent/Child collection hierarchy support
+* Collection landing page with responsive grid layout
+* Collection archive pages with WooCommerce filters and theme integration
+* SEO-friendly collection URLs
 
 = Shortcode =
-Use [ainbae_collections] on any page to display a grid of all collections.
+Use [ainbaecfwoo_collections] on any page to display a grid of all collections.
 
 Optional attributes:
 * columns — number of columns (default: 3)
@@ -39,7 +52,36 @@ Optional attributes:
 * limit — max number of collections, -1 for all (default: -1)
 
 Example:
-[ainbae_collections columns="4" orderby="count" order="DESC"]
+[ainbaecfwoo_collections columns="4" orderby="count" order="DESC"]
+
+= How It Works =
+1. Create collections from Products → Collections.
+2. Upload a thumbnail image for each collection.
+3. Assign collections to products from the product editor.
+4. Create or select a Collections page from WooCommerce → Ainbae Collections.
+5. Display all collections using the shortcode: [ainbaecfwoo_collections]
+6. Customers can browse collection landing pages and individual collection archives exactly like WooCommerce product categories.
+
+= Perfect For =
+* Fashion stores
+* Seasonal campaigns
+* Holiday promotions
+* Product launches
+* Featured product groups
+* Beauty collections
+* Summer and Winter collections
+* Brand showcases
+* Gift guides
+* Curated product selections
+
+== Screenshots ==
+
+1. Collections management screen with hierarchy support and thumbnail uploads.
+2. Ainbae Collections settings page for selecting the collections landing page.
+3. Collections page created using the [ainbaecfwoo_collections] shortcode.
+4. Product editor sidebar showing collection assignment options.
+5. Frontend collections landing page displaying collection thumbnails and product counts.
+6. Individual collection archive page displaying products using the active theme's WooCommerce layout.
 
 == Installation ==
 
@@ -58,6 +100,18 @@ Example:
 5. Assign collections to products from the product edit screen sidebar
 
 == Frequently Asked Questions ==
+
+= Can products belong to multiple collections? =
+Yes. Products can be assigned to multiple collections just like WooCommerce product categories.
+
+= Can I add images to collections? =
+Yes. Each collection supports a thumbnail image that is displayed in collection grids and landing pages.
+
+= Will collections affect my existing categories? =
+No. Collections are completely separate from WooCommerce product categories.
+
+= Do collection pages match my theme design? =
+Yes. Collection archives automatically inherit your theme's WooCommerce category layout, styling, sidebars, filters, and product grids.
 
 = Does this replace Product Categories? =
 No. Collections is a completely separate taxonomy that runs alongside Product Categories.
@@ -87,7 +141,7 @@ The taxonomy is registered as translatable-friendly. WPML/Polylang users should 
 * FIX: Collections no longer appeared twice in the Products admin menu.
 * FIX: Only one "Collections" column in the Products list table.
 * FIX: Collection archive pages use same template as Product Category pages.
-* NEW: [ainbae_collections] shortcode for collections landing page.
+* NEW: [ainbaecfwoo_collections] shortcode for collections landing page.
 * NEW: Conflict-safe page creation on activation.
 * NEW: WooCommerce → Ainbae Collections settings page.
 
@@ -96,13 +150,11 @@ The taxonomy is registered as translatable-friendly. WPML/Polylang users should 
 
 
 == Upgrade Notice ==
- 
+
 = 1.2.0 =
-* Collection archive pages now inherit exact layout (sidebar, columns, CSS) from Product Category pages on every WooCommerce theme. Done by making is_product_category() return true during template render, which is what themes check for layout decisions.
-* All text domains corrected from 'ainbae-collections' to 'ainbae-product-collections-for-woocommerce' (50+ occurrences across all files).
-* Unescaped output errors in settings page fixed — all values pre-escaped before output.
-* Removed unprefixed hook name (loop_shop_per_page apply_filters call).
-* Removed slow meta_query from page adoption check; replaced with direct DB query.
-* Missing /languages directory added.
-* NEW: Thumbnail image upload field on Add New Collection admin screen (Issue #3).
-* NEW: term_link filter ensures /collection/ URLs stay correct after layout spoof.
+* Collection archives now inherit WooCommerce category layouts/theme styling.
+* Fixed all text domains and escaped admin output properly.
+* Removed unprefixed hook and optimized collection adoption query.
+* Added missing `/languages` directory.
+* Added thumbnail upload field for collections.
+* Fixed `/collection/` URL handling after layout spoof.

@@ -2,12 +2,12 @@
 /**
  * Plugin settings page — WooCommerce → Ainbae Collections.
  *
- * @package Ainbae\Collections
+ * @package AinbaeCFWoo\Collections
  */
 
 defined( 'ABSPATH' ) || exit;
 
-class Ainbae_Collections_Settings {
+class AinbaeCFWoo_Collections_Settings {
 
 	/** @var self|null */
 	private static ?self $instance = null;
@@ -36,7 +36,7 @@ class Ainbae_Collections_Settings {
 			__( 'Ainbae Collections Settings', 'ainbae-product-collections-for-woocommerce' ),
 			__( 'Ainbae Collections', 'ainbae-product-collections-for-woocommerce' ),
 			'manage_woocommerce',
-			'ainbae-collections-settings',
+			'ainbaecfwoo-collections-settings',
 			array( $this, 'render_page' )
 		);
 	}
@@ -47,26 +47,26 @@ class Ainbae_Collections_Settings {
 
 	public function save_settings(): void {
 		if (
-			! isset( $_POST['ainbae_col_settings_nonce'] ) ||
+			! isset( $_POST['ainbaecfwoo_col_settings_nonce'] ) ||
 			! wp_verify_nonce(
-				sanitize_text_field( wp_unslash( $_POST['ainbae_col_settings_nonce'] ) ),
-				'ainbae_col_save_settings_action'
+				sanitize_text_field( wp_unslash( $_POST['ainbaecfwoo_col_settings_nonce'] ) ),
+				'ainbaecfwoo_col_save_settings_action'
 			) ||
 			! current_user_can( 'manage_woocommerce' ) ||
-			! isset( $_POST['ainbae_col_save'] )
+			! isset( $_POST['ainbaecfwoo_col_save'] )
 		) {
 			return;
 		}
 
-		$page_id = isset( $_POST[ AINBAE_COL_PAGE_OPTION ] )
-			? absint( wp_unslash( $_POST[ AINBAE_COL_PAGE_OPTION ] ) )
+		$page_id = isset( $_POST[ AINBAECFWOO_COL_PAGE_OPTION ] )
+			? absint( wp_unslash( $_POST[ AINBAECFWOO_COL_PAGE_OPTION ] ) )
 			: 0;
-		update_option( AINBAE_COL_PAGE_OPTION, $page_id );
+		update_option( AINBAECFWOO_COL_PAGE_OPTION, $page_id );
 
 		wp_safe_redirect( add_query_arg( array(
-			'page'   => 'ainbae-collections-settings',
+			'page'   => 'ainbaecfwoo-collections-settings',
 			'saved'  => '1',
-			'_nonce' => wp_create_nonce( 'ainbae_col_updated' ),
+			'_nonce' => wp_create_nonce( 'ainbaecfwoo_col_updated' ),
 		), admin_url( 'admin.php' ) ) );
 		exit;
 	}
@@ -80,18 +80,18 @@ class Ainbae_Collections_Settings {
 			wp_die( esc_html__( 'Access denied.', 'ainbae-product-collections-for-woocommerce' ) );
 		}
 
-		$saved_page_id   = (int) get_option( AINBAE_COL_PAGE_OPTION, 0 );
-		$option_field    = esc_attr( AINBAE_COL_PAGE_OPTION );   // Pre-escaped for output.
+		$saved_page_id   = (int) get_option( AINBAECFWOO_COL_PAGE_OPTION, 0 );
+		$option_field    = esc_attr( AINBAECFWOO_COL_PAGE_OPTION );   // Pre-escaped for output.
 
 		$saved = '';
 		if (
 			isset( $_GET['saved'], $_GET['_nonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_nonce'] ) ), 'ainbae_col_updated' )
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_nonce'] ) ), 'ainbaecfwoo_col_updated' )
 		) {
 			$saved = '1';
 		}
 		?>
-		<div class="wrap" id="ainbae-col-settings-wrap">
+		<div class="wrap" id="ainbaecfwoo-col-settings-wrap">
 			<h1><?php esc_html_e( 'Ainbae Collections Settings', 'ainbae-product-collections-for-woocommerce' ); ?></h1>
 
 			<?php if ( $saved ) : ?>
@@ -101,7 +101,7 @@ class Ainbae_Collections_Settings {
 			<?php endif; ?>
 
 			<form method="post" action="">
-				<?php wp_nonce_field( 'ainbae_col_save_settings_action', 'ainbae_col_settings_nonce' ); ?>
+				<?php wp_nonce_field( 'ainbaecfwoo_col_save_settings_action', 'ainbaecfwoo_col_settings_nonce' ); ?>
 
 				<table class="form-table" role="presentation">
 					<tbody>
@@ -123,7 +123,7 @@ class Ainbae_Collections_Settings {
 								) );
 								?>
 								<p class="description">
-									<?php esc_html_e( 'The page that lists all your collections. Add the [ainbae_collections] shortcode to it.', 'ainbae-product-collections-for-woocommerce' ); ?>
+									<?php esc_html_e( 'The page that lists all your collections. Add the [ainbaecfwoo_collections] shortcode to it.', 'ainbae-product-collections-for-woocommerce' ); ?>
 									<?php if ( $saved_page_id && get_post( $saved_page_id ) ) : ?>
 										&nbsp;
 										<a href="<?php echo esc_url( get_permalink( $saved_page_id ) ); ?>" target="_blank">
@@ -141,11 +141,11 @@ class Ainbae_Collections_Settings {
 						<tr>
 							<th scope="row"><?php esc_html_e( 'Shortcode', 'ainbae-product-collections-for-woocommerce' ); ?></th>
 							<td>
-								<code>[ainbae_collections]</code>
+								<code>[ainbaecfwoo_collections]</code>
 								<p class="description">
 									<?php esc_html_e( 'Paste into any page or widget to display your collections grid. Optional attributes:', 'ainbae-product-collections-for-woocommerce' ); ?>
 									<br>
-									<code>[ainbae_collections columns="3" orderby="name" order="ASC" hide_empty="0" limit="-1"]</code>
+									<code>[ainbaecfwoo_collections columns="3" orderby="name" order="ASC" hide_empty="0" limit="-1"]</code>
 								</p>
 							</td>
 						</tr>
@@ -154,7 +154,7 @@ class Ainbae_Collections_Settings {
 				</table>
 
 				<p class="submit">
-					<button type="submit" name="ainbae_col_save" class="button button-primary">
+					<button type="submit" name="ainbaecfwoo_col_save" class="button button-primary">
 						<?php esc_html_e( 'Save Settings', 'ainbae-product-collections-for-woocommerce' ); ?>
 					</button>
 				</p>

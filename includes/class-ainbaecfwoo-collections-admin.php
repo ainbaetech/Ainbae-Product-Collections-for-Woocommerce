@@ -9,12 +9,12 @@
  * - Filter dropdown.
  * - HPOS compatibility.
  *
- * @package Ainbae\Collections
+ * @package AinbaeCFWoo\Collections
  */
 
 defined( 'ABSPATH' ) || exit;
 
-class Ainbae_Collections_Admin {
+class AinbaeCFWoo_Collections_Admin {
 
 	/** @var self|null */
 	private static ?self $instance = null;
@@ -48,10 +48,10 @@ class Ainbae_Collections_Admin {
 		add_action( 'restrict_manage_posts', array( $this, 'add_collection_filter_dropdown' ), 20 );
 
 		// ── Issue #3: Thumbnail on Add New and Edit collection forms ──────────
-		add_action( AINBAE_COL_TAXONOMY . '_add_form_fields',  array( $this, 'render_thumbnail_add_field' ) );
-		add_action( AINBAE_COL_TAXONOMY . '_edit_form_fields', array( $this, 'render_thumbnail_edit_field' ) );
-		add_action( 'created_' . AINBAE_COL_TAXONOMY,         array( $this, 'save_thumbnail' ) );
-		add_action( 'edited_' . AINBAE_COL_TAXONOMY,          array( $this, 'save_thumbnail' ) );
+		add_action( AINBAECFWOO_COL_TAXONOMY . '_add_form_fields',  array( $this, 'render_thumbnail_add_field' ) );
+		add_action( AINBAECFWOO_COL_TAXONOMY . '_edit_form_fields', array( $this, 'render_thumbnail_edit_field' ) );
+		add_action( 'created_' . AINBAECFWOO_COL_TAXONOMY,         array( $this, 'save_thumbnail' ) );
+		add_action( 'edited_' . AINBAECFWOO_COL_TAXONOMY,          array( $this, 'save_thumbnail' ) );
 
 		// Assets.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
@@ -70,7 +70,7 @@ class Ainbae_Collections_Admin {
 			__( 'Product Collections', 'ainbae-product-collections-for-woocommerce' ),
 			__( 'Collections', 'ainbae-product-collections-for-woocommerce' ),
 			'manage_product_terms',
-			'edit-tags.php?taxonomy=' . AINBAE_COL_TAXONOMY . '&post_type=product'
+			'edit-tags.php?taxonomy=' . AINBAECFWOO_COL_TAXONOMY . '&post_type=product'
 		);
 	}
 
@@ -79,11 +79,11 @@ class Ainbae_Collections_Admin {
 	// ══════════════════════════════════════════════════════════════════════════
 
 	public function register_metabox(): void {
-		remove_meta_box( AINBAE_COL_TAXONOMY . 'div', 'product', 'side' );
-		remove_meta_box( AINBAE_COL_TAXONOMY . 'div', 'product', 'normal' );
+		remove_meta_box( AINBAECFWOO_COL_TAXONOMY . 'div', 'product', 'side' );
+		remove_meta_box( AINBAECFWOO_COL_TAXONOMY . 'div', 'product', 'normal' );
 
 		add_meta_box(
-			AINBAE_COL_TAXONOMY . 'div',
+			AINBAECFWOO_COL_TAXONOMY . 'div',
 			__( 'Collections', 'ainbae-product-collections-for-woocommerce' ),
 			array( $this, 'render_metabox' ),
 			'product',
@@ -93,7 +93,7 @@ class Ainbae_Collections_Admin {
 	}
 
 	public function render_metabox( WP_Post $post ): void {
-		$taxonomy   = AINBAE_COL_TAXONOMY;
+		$taxonomy   = AINBAECFWOO_COL_TAXONOMY;
 		$tax_obj    = get_taxonomy( $taxonomy );
 		$post_terms = wp_get_post_terms( $post->ID, $taxonomy, array( 'fields' => 'ids' ) );
 
@@ -113,7 +113,7 @@ class Ainbae_Collections_Admin {
 
 		$show_tabs = ! empty( $popular );
 		?>
-		<div id="taxonomy-<?php echo esc_attr( $taxonomy ); ?>" class="categorydiv ainbae-col-metabox">
+		<div id="taxonomy-<?php echo esc_attr( $taxonomy ); ?>" class="categorydiv ainbaecfwoo-col-metabox">
 
 			<ul id="<?php echo esc_attr( $taxonomy ); ?>-tabs" class="category-tabs">
 				<li class="tabs">
@@ -216,10 +216,10 @@ class Ainbae_Collections_Admin {
 			return;
 		}
 		$term_ids = array();
-		if ( ! empty( $_POST['tax_input'][ AINBAE_COL_TAXONOMY ] ) ) {
-			$term_ids = array_map( 'absint', (array) $_POST['tax_input'][ AINBAE_COL_TAXONOMY ] );
+		if ( ! empty( $_POST['tax_input'][ AINBAECFWOO_COL_TAXONOMY ] ) ) {
+			$term_ids = array_map( 'absint', (array) $_POST['tax_input'][ AINBAECFWOO_COL_TAXONOMY ] );
 		}
-		wp_set_post_terms( $post_id, $term_ids, AINBAE_COL_TAXONOMY );
+		wp_set_post_terms( $post_id, $term_ids, AINBAECFWOO_COL_TAXONOMY );
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════
@@ -228,40 +228,40 @@ class Ainbae_Collections_Admin {
 
 	public function add_list_column( array $columns ): array {
 		// Remove any auto-generated taxonomy column (belt-and-suspenders).
-		unset( $columns[ 'taxonomy-' . AINBAE_COL_TAXONOMY ] );
+		unset( $columns[ 'taxonomy-' . AINBAECFWOO_COL_TAXONOMY ] );
 
 		$new = array();
 		foreach ( $columns as $key => $label ) {
 			$new[ $key ] = $label;
 			if ( 'product_cat' === $key ) {
-				$new[ AINBAE_COL_TAXONOMY ] = __( 'Collections', 'ainbae-product-collections-for-woocommerce' );
+				$new[ AINBAECFWOO_COL_TAXONOMY ] = __( 'Collections', 'ainbae-product-collections-for-woocommerce' );
 			}
 		}
-		if ( ! isset( $new[ AINBAE_COL_TAXONOMY ] ) ) {
-			$new[ AINBAE_COL_TAXONOMY ] = __( 'Collections', 'ainbae-product-collections-for-woocommerce' );
+		if ( ! isset( $new[ AINBAECFWOO_COL_TAXONOMY ] ) ) {
+			$new[ AINBAECFWOO_COL_TAXONOMY ] = __( 'Collections', 'ainbae-product-collections-for-woocommerce' );
 		}
 		return $new;
 	}
 
 	public function render_list_column( string $column, int $post_id ): void {
-		if ( AINBAE_COL_TAXONOMY !== $column ) {
+		if ( AINBAECFWOO_COL_TAXONOMY !== $column ) {
 			return;
 		}
-		$terms = get_the_terms( $post_id, AINBAE_COL_TAXONOMY );
+		$terms = get_the_terms( $post_id, AINBAECFWOO_COL_TAXONOMY );
 		if ( empty( $terms ) || is_wp_error( $terms ) ) {
 			echo '<span aria-hidden="true">&mdash;</span>';
 			return;
 		}
 		$links = array();
 		foreach ( $terms as $term ) {
-			$url     = add_query_arg( array( 'post_type' => 'product', AINBAE_COL_TAXONOMY => $term->slug ), admin_url( 'edit.php' ) );
+			$url     = add_query_arg( array( 'post_type' => 'product', AINBAECFWOO_COL_TAXONOMY => $term->slug ), admin_url( 'edit.php' ) );
 			$links[] = sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( $term->name ) );
 		}
 		echo implode( ', ', $links ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	public function make_column_sortable( array $columns ): array {
-		$columns[ AINBAE_COL_TAXONOMY ] = AINBAE_COL_TAXONOMY;
+		$columns[ AINBAECFWOO_COL_TAXONOMY ] = AINBAECFWOO_COL_TAXONOMY;
 		return $columns;
 	}
 
@@ -274,11 +274,11 @@ class Ainbae_Collections_Admin {
 			return;
 		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$selected = isset( $_GET[ AINBAE_COL_TAXONOMY ] ) ? sanitize_key( $_GET[ AINBAE_COL_TAXONOMY ] ) : '';
+		$selected = isset( $_GET[ AINBAECFWOO_COL_TAXONOMY ] ) ? sanitize_key( $_GET[ AINBAECFWOO_COL_TAXONOMY ] ) : '';
 		wp_dropdown_categories( array(
 			'show_option_all' => __( 'Filter by collection', 'ainbae-product-collections-for-woocommerce' ),
-			'taxonomy'        => AINBAE_COL_TAXONOMY,
-			'name'            => AINBAE_COL_TAXONOMY,
+			'taxonomy'        => AINBAECFWOO_COL_TAXONOMY,
+			'name'            => AINBAECFWOO_COL_TAXONOMY,
 			'orderby'         => 'name',
 			'selected'        => $selected,
 			'hide_empty'      => true,
@@ -299,19 +299,19 @@ class Ainbae_Collections_Admin {
 	public function render_thumbnail_add_field(): void {
 		?>
 		<div class="form-field term-thumbnail-wrap">
-			<label for="ainbae_col_thumbnail_id">
+			<label for="ainbaecfwoo_col_thumbnail_id">
 				<?php esc_html_e( 'Thumbnail', 'ainbae-product-collections-for-woocommerce' ); ?>
 			</label>
-			<div id="ainbae-col-thumb-preview" class="ainbae-col-thumb-preview" style="margin-bottom:10px;"></div>
+			<div id="ainbaecfwoo-col-thumb-preview" class="ainbaecfwoo-col-thumb-preview" style="margin-bottom:10px;"></div>
 			<input type="hidden"
-			       id="ainbae_col_thumbnail_id"
-			       name="ainbae_col_thumbnail_id"
+			       id="ainbaecfwoo_col_thumbnail_id"
+			       name="ainbaecfwoo_col_thumbnail_id"
 			       value="">
-			<?php wp_nonce_field( 'ainbae_col_save_thumbnail', 'ainbae_col_thumbnail_nonce' ); ?>
-			<button type="button" class="button ainbae-col-upload-btn">
+			<?php wp_nonce_field( 'ainbaecfwoo_col_save_thumbnail', 'ainbaecfwoo_col_thumbnail_nonce' ); ?>
+			<button type="button" class="button ainbaecfwoo-col-upload-btn">
 				<?php esc_html_e( 'Upload / Choose Image', 'ainbae-product-collections-for-woocommerce' ); ?>
 			</button>
-			<button type="button" class="button ainbae-col-remove-btn" style="display:none;margin-left:4px;">
+			<button type="button" class="button ainbaecfwoo-col-remove-btn" style="display:none;margin-left:4px;">
 				<?php esc_html_e( 'Remove Image', 'ainbae-product-collections-for-woocommerce' ); ?>
 			</button>
 			<p class="description">
@@ -332,25 +332,25 @@ class Ainbae_Collections_Admin {
 		?>
 		<tr class="form-field term-thumbnail-wrap">
 			<th scope="row">
-				<label for="ainbae_col_thumbnail_id">
+				<label for="ainbaecfwoo_col_thumbnail_id">
 					<?php esc_html_e( 'Thumbnail', 'ainbae-product-collections-for-woocommerce' ); ?>
 				</label>
 			</th>
 			<td>
-				<div id="ainbae-col-thumb-preview" class="ainbae-col-thumb-preview" style="margin-bottom:10px;">
+				<div id="ainbaecfwoo-col-thumb-preview" class="ainbaecfwoo-col-thumb-preview" style="margin-bottom:10px;">
 					<?php if ( $img_src ) : ?>
 						<img src="<?php echo esc_url( $img_src ); ?>" style="max-width:150px;display:block;border-radius:4px;" alt="">
 					<?php endif; ?>
 				</div>
 				<input type="hidden"
-				       id="ainbae_col_thumbnail_id"
-				       name="ainbae_col_thumbnail_id"
+				       id="ainbaecfwoo_col_thumbnail_id"
+				       name="ainbaecfwoo_col_thumbnail_id"
 				       value="<?php echo esc_attr( $thumb_id ?: '' ); ?>">
-				<?php wp_nonce_field( 'ainbae_col_save_thumbnail', 'ainbae_col_thumbnail_nonce' ); ?>
-				<button type="button" class="button ainbae-col-upload-btn">
+				<?php wp_nonce_field( 'ainbaecfwoo_col_save_thumbnail', 'ainbaecfwoo_col_thumbnail_nonce' ); ?>
+				<button type="button" class="button ainbaecfwoo-col-upload-btn">
 					<?php esc_html_e( 'Upload / Choose Image', 'ainbae-product-collections-for-woocommerce' ); ?>
 				</button>
-				<button type="button" class="button ainbae-col-remove-btn" style="<?php echo $thumb_id ? '' : 'display:none;'; ?>margin-left:4px;">
+				<button type="button" class="button ainbaecfwoo-col-remove-btn" style="<?php echo $thumb_id ? '' : 'display:none;'; ?>margin-left:4px;">
 					<?php esc_html_e( 'Remove Image', 'ainbae-product-collections-for-woocommerce' ); ?>
 				</button>
 				<p class="description">
@@ -368,17 +368,17 @@ class Ainbae_Collections_Admin {
 	 */
 	public function save_thumbnail( int $term_id ): void {
 		if (
-			! isset( $_POST['ainbae_col_thumbnail_nonce'] ) ||
+			! isset( $_POST['ainbaecfwoo_col_thumbnail_nonce'] ) ||
 			! wp_verify_nonce(
-				sanitize_text_field( wp_unslash( $_POST['ainbae_col_thumbnail_nonce'] ) ),
-				'ainbae_col_save_thumbnail'
+				sanitize_text_field( wp_unslash( $_POST['ainbaecfwoo_col_thumbnail_nonce'] ) ),
+				'ainbaecfwoo_col_save_thumbnail'
 			)
 		) {
 			return;
 		}
 
-		$thumb_id = isset( $_POST['ainbae_col_thumbnail_id'] )
-			? absint( wp_unslash( $_POST['ainbae_col_thumbnail_id'] ) )
+		$thumb_id = isset( $_POST['ainbaecfwoo_col_thumbnail_id'] )
+			? absint( wp_unslash( $_POST['ainbaecfwoo_col_thumbnail_id'] ) )
 			: 0;
 
 		if ( $thumb_id ) {
@@ -402,14 +402,14 @@ class Ainbae_Collections_Admin {
 		$is_product_edit    = in_array( $hook, array( 'post.php', 'post-new.php' ), true )
 		                      && 'product' === $screen->post_type;
 		$is_collections_tax = in_array( $hook, array( 'edit-tags.php', 'term.php' ), true )
-		                      && AINBAE_COL_TAXONOMY === $screen->taxonomy;
+		                      && AINBAECFWOO_COL_TAXONOMY === $screen->taxonomy;
 
 		if ( $is_product_list || $is_product_edit || $is_collections_tax ) {
 			wp_enqueue_style(
-				'ainbae-collections-admin',
-				AINBAE_COL_URL . 'assets/css/admin.css',
+				'ainbaecfwoo-collections-admin',
+				AINBAECFWOO_COL_URL . 'assets/css/admin.css',
 				array(),
-				AINBAE_COL_VERSION
+				AINBAECFWOO_COL_VERSION
 			);
 		}
 
@@ -417,15 +417,15 @@ class Ainbae_Collections_Admin {
 		if ( $is_collections_tax ) {
 			wp_enqueue_media();
 			wp_enqueue_script(
-				'ainbae-collections-admin-js',
-				AINBAE_COL_URL . 'assets/js/admin.js',
+				'ainbaecfwoo-collections-admin-js',
+				AINBAECFWOO_COL_URL . 'assets/js/admin.js',
 				array( 'jquery', 'media-upload', 'thickbox' ),
-				AINBAE_COL_VERSION,
+				AINBAECFWOO_COL_VERSION,
 				true
 			);
 			wp_localize_script(
-				'ainbae-collections-admin-js',
-				'ainbaeColAdmin',
+				'ainbaecfwoo-collections-admin-js',
+				'ainbaeCFWooColAdmin',
 				array(
 					'title'  => __( 'Choose Collection Image', 'ainbae-product-collections-for-woocommerce' ),
 					'button' => __( 'Use this image', 'ainbae-product-collections-for-woocommerce' ),
@@ -442,7 +442,7 @@ class Ainbae_Collections_Admin {
 		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
 				'custom_order_tables',
-				AINBAE_COL_FILE,
+				AINBAECFWOO_COL_FILE,
 				true
 			);
 		}

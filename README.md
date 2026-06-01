@@ -25,13 +25,19 @@
 - **Collections Taxonomy** — Hierarchical taxonomy (parent/child support) mirroring WooCommerce's built-in Product Categories
 - **Identical Archive Layout** — Collection archive pages automatically inherit the exact same layout, sidebar, columns, and CSS as your Product Category pages — on every WooCommerce-compatible theme
 - **Thumbnail Image Upload** — Add thumbnail images to collections directly from the Add New Collection and Edit Collection admin screens
-- **Collections Landing Page** — A `/collections/` page is created automatically on activation with the `[ainbae_collections]` shortcode
+- **Collections Landing Page** — A `/collections/` page is created automatically on activation with the `[ainbaecfwoo_collections]` shortcode
 - **Admin Column** — A single clean "Collections" column in the Products list table with clickable filter links
 - **Filter Dropdown** — Filter products by collection from the Products list toolbar
 - **Correct Breadcrumbs** — Collection archives include the Collections landing page as a parent breadcrumb
 - **No Duplicates** — Exactly one "Collections" menu item under Products, exactly one column — no conflicts
 - **Conflict Safe** — Activation detects existing `/collections/` pages and never overwrites them
 - **WooCommerce HPOS Compatible** — Fully compatible with High-Performance Order Storage
+- **Dedicated Settings Page** — Manage your Collections landing page from WooCommerce → Ainbae Collections
+- **Product-to-Collection Assignment** — Assign collections directly from the product editor sidebar
+- **Parent/Child Hierarchy** — Full parent and child collection hierarchy in both admin and frontend URLs
+- **Responsive Grid Layout** — Collections landing page adapts to any screen size
+- **SEO-Friendly URLs** — Clean `/collection/{slug}/` archive URLs registered on activation
+- **Works with Classic & Block Themes** — Compatible with classic WooCommerce themes and modern block themes
 
 ---
 
@@ -68,11 +74,61 @@
 After activation the plugin automatically:
 
 1. Registers the **Collections** taxonomy under your Products
-2. Creates a **Collections** page at `/collections/` with the `[ainbae_collections]` shortcode
+2. Creates a **Collections** page at `/collections/` with the `[ainbaecfwoo_collections]` shortcode
 3. Adds a **Collections** submenu item under **Products** in the admin sidebar
 4. Adds a **Collections** column to the Products list table
 
 Go to **WooCommerce → Ainbae Collections** to configure the Collections page setting.
+
+---
+
+## 🖼️ Screenshots
+
+### 1. Admin Settings — Collections Management
+
+![Collections Management](./Screenshots/screenshot-1.png)
+
+Collections management screen with hierarchy support and thumbnail uploads.
+
+---
+
+### 2. Frontend — Collections Landing Page Setting
+
+![Collections Landing Page](./Screenshots/screenshot-2.png)
+
+Ainbae Collections settings page for selecting the collections landing page.
+
+---
+
+### 3. Collections Landing Page — Shortcode Display
+
+![Collections Shortcode](./Screenshots/screenshot-3.png)
+
+Collections page created using the `[ainbaecfwoo_collections]` shortcode.
+
+---
+
+### 4. Product Editor — Assigning Collections
+
+![Product Editor](./Screenshots/screenshot-4.png)
+
+Product editor sidebar showing collection assignment options.
+
+---
+
+### 5. Frontend — Collection Page Displaying Collection
+
+![Collection Page](./Screenshots/screenshot-5.png)
+
+Frontend collections landing page displaying collection thumbnails and product counts.
+
+---
+
+### 6. Frontend - Showing Collection Products
+
+![Collection Products](./Screenshots/screenshot-6.png)
+
+Individual collection archive page displaying products using the active theme's WooCommerce layout.
 
 ---
 
@@ -104,10 +160,10 @@ This page inherits the exact layout of your Product Category pages automatically
 
 ## 🔖 Shortcode
 
-Use `[ainbae_collections]` on any page or widget to display a grid of all your collections.
+Use `[ainbaecfwoo_collections]` on any page or widget to display a grid of all your collections.
 
 ```
-[ainbae_collections]
+[ainbaecfwoo_collections]
 ```
 
 ### Shortcode Attributes
@@ -123,9 +179,9 @@ Use `[ainbae_collections]` on any page or widget to display a grid of all your c
 ### Examples
 
 ```
-[ainbae_collections columns="4"]
-[ainbae_collections orderby="count" order="DESC" hide_empty="1"]
-[ainbae_collections limit="6" columns="3"]
+[ainbaecfwoo_collections columns="4"]
+[ainbaecfwoo_collections orderby="count" order="DESC" hide_empty="1"]
+[ainbaecfwoo_collections limit="6" columns="3"]
 ```
 
 ---
@@ -144,7 +200,7 @@ A `term_link` filter ensures all collection URLs still correctly point to `/coll
 
 Go to **WooCommerce → Ainbae Collections** to:
 
-- Select which page acts as the **Collections landing page** (where `[ainbae_collections]` displays the grid)
+- Select which page acts as the **Collections landing page** (where `[ainbaecfwoo_collections]` displays the grid)
 - View the shortcode reference and attribute documentation
 
 ---
@@ -168,7 +224,7 @@ Go to **WooCommerce → Ainbae Collections** to:
 - **Fix** — Collections no longer appeared twice in the Products admin menu
 - **Fix** — Only one "Collections" column in the Products list table
 - **Fix** — Collection archive pages use same template as Product Category pages
-- **New** — `[ainbae_collections]` shortcode for collections landing page
+- **New** — `[ainbaecfwoo_collections]` shortcode for collections landing page
 - **New** — Conflict-safe page creation on activation
 - **New** — WooCommerce → Ainbae Collections settings page
 
