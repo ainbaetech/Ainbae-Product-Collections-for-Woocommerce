@@ -30,15 +30,15 @@ $taxonomy = 'ainbaecfwoo_collection';
 
 // Fetch all term IDs registered under this taxonomy.
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-$term_ids = $wpdb->get_col(
+$ainbaecfwoo_term_ids = $wpdb->get_col(
 	$wpdb->prepare(
 		"SELECT term_id FROM {$wpdb->term_taxonomy} WHERE taxonomy = %s",
 		$taxonomy
 	)
 );
 
-if ( ! empty( $term_ids ) ) {
-	foreach ( $term_ids as $term_id ) {
-		delete_term_meta( (int) $term_id, 'thumbnail_id' );
+if ( ! empty( $ainbaecfwoo_term_ids ) ) {
+	foreach ( $ainbaecfwoo_term_ids as $ainbaecfwoo_term_id ) {
+		delete_term_meta( (int) $ainbaecfwoo_term_id, 'thumbnail_id' );
 	}
 }

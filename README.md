@@ -207,6 +207,13 @@ Go to **WooCommerce → Ainbae Collections** to:
 
 ## 🔄 Changelog
 
+### 1.2.1
+
+- **Fix** — Shortcode collection cards now inherit full WooCommerce/theme grid layout, matching product category card sizing and alignment exactly
+- **Fix** — Removed sort arrows from the Collections column in the Products list — now matches the native Categories column behaviour
+- **Updated** — readme.txt expanded with features, How It Works guide, Screenshots, Perfect For section, and additional FAQs
+- **Updated** — POT file corrected: wrong file references fixed, missing strings added, stale line numbers updated
+
 ### 1.2.0
 
 - **Fix** — Collection archive pages now inherit exact layout from Product Category pages on every theme

@@ -3,7 +3,7 @@
 /**
  * Plugin Name:          Ainbae Product Collections for WooCommerce
  * Description:          Adds a "Collections" taxonomy to WooCommerce, works exactly like Product Categories with full hierarchy, admin panel, and frontend archive support.
- * Version:              1.2.0
+ * Version:              1.2.1
  * Author:               Ainbae
  * Author URI:           https://ainbae.com
  * License:              GPL-2.0-or-later
@@ -21,7 +21,7 @@
 defined('ABSPATH') || exit;
 
 // ── Constants ──────────────────────────────────────────────────────────────────
-define('AINBAECFWOO_COL_VERSION',     '1.2.0');
+define('AINBAECFWOO_COL_VERSION',     '1.2.1');
 define('AINBAECFWOO_COL_TAXONOMY',    'ainbaecfwoo_collection');
 define('AINBAECFWOO_COL_SLUG',        'collection');
 define('AINBAECFWOO_COL_PAGE_OPTION', 'ainbaecfwoo_col_page_id');

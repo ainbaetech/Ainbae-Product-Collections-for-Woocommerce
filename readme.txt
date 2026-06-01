@@ -4,7 +4,7 @@ Tags: woocommerce, collections, taxonomy, products
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 WC requires at least: 6.0
 WC tested up to: 10.7
 License: GPL-2.0-or-later
@@ -14,13 +14,11 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Adds a "Collections" taxonomy to WooCommerce, working exactly like Product Categories.
 
 == Description ==
-
 Create curated product collections in WooCommerce without affecting your existing product categories.
 
 Ainbae Product Collections for WooCommerce adds a dedicated Collections taxonomy that works alongside Product Categories. Build seasonal collections, fashion collections, featured collections, brand collections, gift guides, and more.
 
 Collection archive pages automatically inherit your theme's WooCommerce category layout, ensuring a seamless shopping experience without additional configuration.
-
 
 = Features =
 * Collections taxonomy (hierarchical, like product categories)
@@ -127,6 +125,11 @@ The taxonomy is registered as translatable-friendly. WPML/Polylang users should 
 
 == Changelog ==
 
+= 1.2.1 =
+* FIX: Shortcode collection cards now inherit full WooCommerce/theme grid layout, matching product category card sizing and alignment exactly.
+* FIX: Removed sort arrows from the Collections column in the Products list table — now matches the native Categories column behaviour.
+* Updated readme with expanded features, How It Works guide, Screenshots, Perfect For section, and additional FAQs.
+
 = 1.2.0 =
 * FIX: Collection archive pages now inherit exact layout (sidebar, columns, CSS) from Product Category pages on every WooCommerce theme. Done by making is_product_category() return true during template render, which is what themes check for layout decisions.
 * FIX: All text domains corrected from 'ainbae-collections' to 'ainbae-product-collections-for-woocommerce' (50+ occurrences across all files).
@@ -150,11 +153,7 @@ The taxonomy is registered as translatable-friendly. WPML/Polylang users should 
 
 
 == Upgrade Notice ==
-
-= 1.2.0 =
-* Collection archives now inherit WooCommerce category layouts/theme styling.
-* Fixed all text domains and escaped admin output properly.
-* Removed unprefixed hook and optimized collection adoption query.
-* Added missing `/languages` directory.
-* Added thumbnail upload field for collections.
-* Fixed `/collection/` URL handling after layout spoof.
+ 
+= 1.2.1 =
+* Shortcode collection cards now match product category card sizing and alignment.
+* Collections column in Products list no longer shows sort arrows, matching Categories.

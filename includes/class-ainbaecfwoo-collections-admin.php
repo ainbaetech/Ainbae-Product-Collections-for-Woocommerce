@@ -42,7 +42,8 @@ class AinbaeCFWoo_Collections_Admin {
 		// giving us a stable position right after Categories.
 		add_filter( 'manage_edit-product_columns',          array( $this, 'add_list_column' ), 20 );
 		add_action( 'manage_product_posts_custom_column',   array( $this, 'render_list_column' ), 10, 2 );
-		add_filter( 'manage_edit-product_sortable_columns', array( $this, 'make_column_sortable' ) );
+		// Intentionally not registering make_column_sortable — Collections column
+		// should have no sort arrows, matching the native Categories column behaviour.
 
 		// Filter dropdown.
 		add_action( 'restrict_manage_posts', array( $this, 'add_collection_filter_dropdown' ), 20 );

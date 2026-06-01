@@ -1,51 +1,31 @@
 /**
  * Ainbae Collections — Collections Landing Page Styles
  *
- * Uses WooCommerce's native .products / .product-category markup so it
- * inherits all WooCommerce and theme styles automatically.
+ * Intentionally minimal: WooCommerce's native .products / .product-category
+ * markup already carries full grid layout from woocommerce.css and the active
+ * theme. We only add the small extras that don't exist in WooCommerce core.
+ *
+ * DO NOT redeclare flex/width rules here — they fight the theme's .products
+ * grid and produce misaligned / undersized cards compared to product categories.
  */
 
-/* ── Grid wrapper ─────────────────────────────────────────────────────────── */
-.ainbaecfwoo-col-grid .products {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 1.5em;
-}
+/* ── Columns helper — sets the WooCommerce columns CSS variable only.
+      WooCommerce and themes use --wc-columns (or the .columns-N class we
+      already output on the <ul>) to drive their own grid. We must NOT add
+      competing flex/width rules on top of that. ─────────────────────────── */
+.ainbaecfwoo-col-grid-1 .products { --wc-columns: 1; }
+.ainbaecfwoo-col-grid-2 .products { --wc-columns: 2; }
+.ainbaecfwoo-col-grid-3 .products { --wc-columns: 3; }
+.ainbaecfwoo-col-grid-4 .products { --wc-columns: 4; }
+.ainbaecfwoo-col-grid-5 .products { --wc-columns: 5; }
+.ainbaecfwoo-col-grid-6 .products { --wc-columns: 6; }
 
-/* ── Column widths ────────────────────────────────────────────────────────── */
-.ainbaecfwoo-col-grid-1 .products li.product  { flex: 0 0 100%; max-width: 100%; }
-.ainbaecfwoo-col-grid-2 .products li.product  { flex: 0 0 calc(50% - 0.75em);      max-width: calc(50% - 0.75em); }
-.ainbaecfwoo-col-grid-3 .products li.product  { flex: 0 0 calc(33.333% - 1em);     max-width: calc(33.333% - 1em); }
-.ainbaecfwoo-col-grid-4 .products li.product  { flex: 0 0 calc(25% - 1.125em);     max-width: calc(25% - 1.125em); }
-.ainbaecfwoo-col-grid-5 .products li.product  { flex: 0 0 calc(20% - 1.2em);       max-width: calc(20% - 1.2em); }
-.ainbaecfwoo-col-grid-6 .products li.product  { flex: 0 0 calc(16.666% - 1.25em);  max-width: calc(16.666% - 1.25em); }
-
-/* ── Card ─────────────────────────────────────────────────────────────────── */
+/* ── Card link — mirrors WooCommerce's .woocommerce-loop-category__link ──── */
 .ainbaecfwoo-col-card { display: block; text-decoration: none; color: inherit; }
 .ainbaecfwoo-col-card:hover { text-decoration: none; color: inherit; }
-.ainbaecfwoo-col-card img { display: block; width: 100%; height: auto; }
+
+/* ── Optional description line below the title ───────────────────────────── */
 .ainbaecfwoo-col-card-desc { font-size: .9em; color: #555; margin: .25em 0 0; }
 
-/* ── Empty ────────────────────────────────────────────────────────────────── */
+/* ── Empty state ─────────────────────────────────────────────────────────── */
 .ainbaecfwoo-col-empty { text-align: center; padding: 2em; color: #555; }
-
-/* ── Responsive ───────────────────────────────────────────────────────────── */
-@media ( max-width: 768px ) {
-	.ainbaecfwoo-col-grid-3 .products li.product,
-	.ainbaecfwoo-col-grid-4 .products li.product,
-	.ainbaecfwoo-col-grid-5 .products li.product,
-	.ainbaecfwoo-col-grid-6 .products li.product {
-		flex: 0 0 calc(50% - .75em);
-		max-width: calc(50% - .75em);
-	}
-}
-
-@media ( max-width: 480px ) {
-	.ainbaecfwoo-col-grid .products li.product {
-		flex: 0 0 100%;
-		max-width: 100%;
-	}
-}
