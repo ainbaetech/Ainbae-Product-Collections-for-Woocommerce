@@ -2,11 +2,11 @@
 Contributors: ainbae
 Tags: woocommerce, collections, taxonomy, products
 Requires at least: 5.8
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 WC requires at least: 6.0
-WC tested up to: 10.7
+WC tested up to: 11.1.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,10 @@ The taxonomy is registered as translatable-friendly. WPML/Polylang users should 
 
 == Changelog ==
 
+= 1.2.2 =
+* Update: Tested up to WooCommerce 11.1.0.
+* Update: Tested up to WordPress 7.1.
+
 = 1.2.1 =
 * FIX: Shortcode collection cards now inherit full WooCommerce/theme grid layout, matching product category card sizing and alignment exactly.
 * FIX: Removed sort arrows from the Collections column in the Products list table — now matches the native Categories column behaviour.
@@ -155,5 +159,4 @@ The taxonomy is registered as translatable-friendly. WPML/Polylang users should 
 == Upgrade Notice ==
  
 = 1.2.1 =
-* Shortcode collection cards now match product category card sizing and alignment.
-* Collections column in Products list no longer shows sort arrows, matching Categories.
+- Updated tested up to WooCommerce 11.1.0 and WordPress 7.1.
