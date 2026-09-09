@@ -207,6 +207,10 @@ Go to **WooCommerce → Ainbae Collections** to:
 
 ## 🔄 Changelog
 
+### 1.2.2
+- **Updated** - readme.txt `WC tested up to` updated to 11.1.0
+- **Updated** - readme.txt `Tested up to` updated to 7.1
+
 ### 1.2.1
 
 - **Fix** — Shortcode collection cards now inherit full WooCommerce/theme grid layout, matching product category card sizing and alignment exactly
