@@ -34,7 +34,7 @@ class AinbaeCFWoo_Collections_Admin {
 
 		// Meta box on product edit screen.
 		add_action( 'add_meta_boxes', array( $this, 'register_metabox' ), 100 );
-		add_action( 'woocommerce_process_product_meta', array( $this, 'save_collections' ), 10, 2 );
+		add_action( 'save_post_product', array( $this, 'save_collections' ), 10, 2 );
 
 		// Products list table — one column.
 		// Use manage_edit-product_columns (canonical WooCommerce hook) so we
@@ -106,6 +106,8 @@ class AinbaeCFWoo_Collections_Admin {
 			'hide_empty' => true,
 		) );
 
+		$popular_ids = is_array( $popular ) ? wp_list_pluck( $popular, 'term_id' ) : array();
+
 		$all_terms = get_terms( array(
 			'taxonomy'   => $taxonomy,
 			'orderby'    => 'name',
@@ -115,6 +117,13 @@ class AinbaeCFWoo_Collections_Admin {
 		$show_tabs = ! empty( $popular );
 		?>
 		<div id="taxonomy-<?php echo esc_attr( $taxonomy ); ?>" class="categorydiv ainbaecfwoo-col-metabox">
+			<?php
+			// Sentinel field: always submitted so we can detect the metabox was
+			// rendered even when every checkbox is unchecked (HTML checkboxes
+			// only submit values when checked).
+			?>
+			<input type="hidden" name="ainbaecfwoo_col_metabox_active" value="1">
+			<?php wp_nonce_field( 'ainbaecfwoo_col_save_collections', 'ainbaecfwoo_col_collections_nonce', false ); ?>
 
 			<ul id="<?php echo esc_attr( $taxonomy ); ?>-tabs" class="category-tabs">
 				<li class="tabs">
@@ -144,7 +153,7 @@ class AinbaeCFWoo_Collections_Admin {
 					wp_terms_checklist( $post->ID, array(
 						'taxonomy'      => $taxonomy,
 						'selected_cats' => $post_terms,
-						'popular_cats'  => array(),
+						'popular_cats'  => $popular_ids,
 						'checked_ontop' => true,
 					) );
 					?>
@@ -159,7 +168,7 @@ class AinbaeCFWoo_Collections_Admin {
 					wp_terms_checklist( $post->ID, array(
 						'taxonomy'      => $taxonomy,
 						'selected_cats' => $post_terms,
-						'popular_cats'  => is_array( $popular ) ? wp_list_pluck( $popular, 'term_id' ) : array(),
+						'popular_cats'  => $popular_ids,
 						'checked_ontop' => false,
 					) );
 					?>
@@ -212,15 +221,47 @@ class AinbaeCFWoo_Collections_Admin {
 		<?php
 	}
 
+	/**
+	 * Save collection term assignments.
+	 *
+	 * WordPress core processes tax_input inside wp_insert_post(), but it
+	 * skips our taxonomy entirely when NO checkboxes are checked (the key
+	 * is simply absent from $_POST).  This handler uses a hidden sentinel
+	 * field to detect the metabox was on the page and explicitly clears
+	 * terms in that scenario.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post    Post object.
+	 */
 	public function save_collections( int $post_id, \WP_Post $post ): void {
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'update-post_' . $post_id ) ) {
+		// Only run when our metabox was actually rendered.
+		if ( empty( $_POST['ainbaecfwoo_col_metabox_active'] ) ) {
 			return;
 		}
+
+		// Verify nonce.
+		if (
+			! isset( $_POST['ainbaecfwoo_col_collections_nonce'] ) ||
+			! wp_verify_nonce(
+				sanitize_text_field( wp_unslash( $_POST['ainbaecfwoo_col_collections_nonce'] ) ),
+				'ainbaecfwoo_col_save_collections'
+			)
+		) {
+			return;
+		}
+
+		// Skip autosaves and revisions.
+		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
 		$term_ids = array();
 		if ( ! empty( $_POST['tax_input'][ AINBAECFWOO_COL_TAXONOMY ] ) ) {
 			$term_ids = array_map( 'absint', (array) $_POST['tax_input'][ AINBAECFWOO_COL_TAXONOMY ] );
+			$term_ids = array_unique( array_filter( $term_ids ) );
 		}
-		wp_set_post_terms( $post_id, $term_ids, AINBAECFWOO_COL_TAXONOMY );
+
+		wp_set_object_terms( $post_id, $term_ids, AINBAECFWOO_COL_TAXONOMY );
 	}
 
 	// ══════════════════════════════════════════════════════════════════════════

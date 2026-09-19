@@ -4,7 +4,7 @@ Tags: woocommerce, collections, taxonomy, products
 Requires at least: 5.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.2
+Stable tag: 1.3.0
 WC requires at least: 6.0
 WC tested up to: 11.1.0
 License: GPL-2.0-or-later
@@ -125,6 +125,11 @@ The taxonomy is registered as translatable-friendly. WPML/Polylang users should 
 
 == Changelog ==
 
+= 1.3.0 =
+* FIX: Unchecking collections on the product edit screen now correctly removes the collection assignment. The "All Collections" tab was missing popular_cats IDs which broke WordPress core JS checkbox syncing between tabs — unchecking in one tab did not uncheck in the other, causing stale values to persist.
+* FIX: Unchecking ALL collections from a product now correctly removes all assignments. Added a sentinel field so the save handler detects when the metabox was rendered but no checkboxes were checked.
+* Updated: Codebase cleanup — replaced the old woocommerce_process_product_meta save handler with a more robust save_post_product handler that properly covers all edge cases.
+
 = 1.2.2 =
 * Update: Tested up to WooCommerce 11.1.0.
 * Update: Tested up to WordPress 7.1.
@@ -158,5 +163,5 @@ The taxonomy is registered as translatable-friendly. WPML/Polylang users should 
 
 == Upgrade Notice ==
  
-= 1.2.1 =
-- Updated tested up to WooCommerce 11.1.0 and WordPress 7.1.
+= 1.3.0 =
+Fixes a bug where unchecking collections on product edit did not persist. Recommended update for all users.

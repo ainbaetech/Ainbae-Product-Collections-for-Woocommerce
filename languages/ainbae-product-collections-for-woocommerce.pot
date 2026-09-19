@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Ainbae Product Collections for WooCommerce 1.2.2\n"
+"Project-Id-Version: Ainbae Product Collections for WooCommerce 1.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/Ainbae-Product-Collections-for-Woocommerce\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-09T11:17:46+00:00\n"
+"POT-Creation-Date: 2026-09-19T06:36:16+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ainbae-product-collections-for-woocommerce\n"
@@ -44,75 +44,75 @@ msgstr ""
 
 #: includes/class-ainbaecfwoo-collections-admin.php:72
 #: includes/class-ainbaecfwoo-collections-admin.php:88
-#: includes/class-ainbaecfwoo-collections-admin.php:238
-#: includes/class-ainbaecfwoo-collections-admin.php:242
+#: includes/class-ainbaecfwoo-collections-admin.php:279
+#: includes/class-ainbaecfwoo-collections-admin.php:283
 #: includes/class-ainbaecfwoo-collections-page.php:184
 #: includes/class-ainbaecfwoo-collections-taxonomy.php:79
 msgid "Collections"
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:122
+#: includes/class-ainbaecfwoo-collections-admin.php:131
 #: includes/class-ainbaecfwoo-collections-taxonomy.php:80
 msgid "All Collections"
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:128
+#: includes/class-ainbaecfwoo-collections-admin.php:137
 msgid "Most Used"
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:137
+#: includes/class-ainbaecfwoo-collections-admin.php:146
 msgid "No collections yet. Add one below."
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:175
-#: includes/class-ainbaecfwoo-collections-admin.php:205
+#: includes/class-ainbaecfwoo-collections-admin.php:184
+#: includes/class-ainbaecfwoo-collections-admin.php:214
 #: includes/class-ainbaecfwoo-collections-taxonomy.php:84
 msgid "Add New Collection"
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:179
+#: includes/class-ainbaecfwoo-collections-admin.php:188
 msgid "Collection Name"
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:185
+#: includes/class-ainbaecfwoo-collections-admin.php:194
 msgid "New collection name"
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:188
-#: includes/class-ainbaecfwoo-collections-admin.php:198
+#: includes/class-ainbaecfwoo-collections-admin.php:197
+#: includes/class-ainbaecfwoo-collections-admin.php:207
 #: includes/class-ainbaecfwoo-collections-taxonomy.php:86
 msgid "Parent Collection"
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:280
+#: includes/class-ainbaecfwoo-collections-admin.php:321
 msgid "Filter by collection"
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:304
-#: includes/class-ainbaecfwoo-collections-admin.php:337
+#: includes/class-ainbaecfwoo-collections-admin.php:345
+#: includes/class-ainbaecfwoo-collections-admin.php:378
 msgid "Thumbnail"
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:313
-#: includes/class-ainbaecfwoo-collections-admin.php:352
+#: includes/class-ainbaecfwoo-collections-admin.php:354
+#: includes/class-ainbaecfwoo-collections-admin.php:393
 msgid "Upload / Choose Image"
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:316
-#: includes/class-ainbaecfwoo-collections-admin.php:355
+#: includes/class-ainbaecfwoo-collections-admin.php:357
+#: includes/class-ainbaecfwoo-collections-admin.php:396
 msgid "Remove Image"
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:319
-#: includes/class-ainbaecfwoo-collections-admin.php:358
+#: includes/class-ainbaecfwoo-collections-admin.php:360
+#: includes/class-ainbaecfwoo-collections-admin.php:399
 msgid "Thumbnail shown on the Collections page grid."
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:431
+#: includes/class-ainbaecfwoo-collections-admin.php:472
 msgid "Choose Collection Image"
 msgstr ""
 
-#: includes/class-ainbaecfwoo-collections-admin.php:432
+#: includes/class-ainbaecfwoo-collections-admin.php:473
 msgid "Use this image"
 msgstr ""
 

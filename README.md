@@ -207,6 +207,11 @@ Go to **WooCommerce → Ainbae Collections** to:
 
 ## 🔄 Changelog
 
+### 1.3.0
+- **Fix** — Unchecking collections on the product edit screen now correctly removes the collection assignment. The "All Collections" tab was missing `popular_cats` IDs, which broke WordPress core JS checkbox syncing between the "All" and "Most Used" tabs — unchecking in one tab did not uncheck in the other, causing stale checked values to be re-submitted
+- **Fix** — Unchecking ALL collections from a product now correctly removes all assignments. Added a sentinel field so the save handler detects when the metabox was rendered but no checkboxes were checked (HTML checkboxes don't submit when unchecked)
+- **Updated** — Codebase cleanup: replaced the old `woocommerce_process_product_meta` save handler with a more robust `save_post_product` handler that properly covers all edge cases
+
 ### 1.2.2
 - **Updated** - readme.txt `WC tested up to` updated to 11.1.0
 - **Updated** - readme.txt `Tested up to` updated to 7.1
